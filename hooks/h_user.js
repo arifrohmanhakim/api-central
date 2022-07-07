@@ -1,3 +1,4 @@
+const { generateAccessToken } = require("../utils/u_helpers");
 const ControllerUser = require("../controllers/c_user");
 
 module.exports = (params) => {
@@ -74,9 +75,11 @@ module.exports = (params) => {
         };
       }
 
+      const token = generateAccessToken(result);
+
       return {
         message: "Login Berhasil",
-        token: "112233445556677", // dummy token
+        token,
         datetime: moment().unix(),
       };
     } catch (error) {

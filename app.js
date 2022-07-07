@@ -6,7 +6,13 @@ const bodyParser = require("body-parser");
 const moment = require("moment");
 const hooks = require("@wordpress/hooks");
 const _ = require("lodash");
-const { isJson, importFile, optionQueue } = require("./utils/u_helpers");
+const jwt = require("jsonwebtoken");
+const {
+  isJson,
+  importFile,
+  optionQueue,
+  authenticateJWT,
+} = require("./utils/u_helpers");
 const { initMongoDB, initRedis, initElastic } = require("./utils/u_database");
 
 dotenv.config();
@@ -20,6 +26,7 @@ global.app = app;
 global.hook = hooks.createHooks();
 global._ = _;
 global.moment = moment;
+global.jwt = jwt;
 
 global.appPrefix = env.PREFIX;
 global.lecturerPrefix = env.LECTURERS_PREFIX;
@@ -29,6 +36,7 @@ global.rpsPrefix = env.RPS_PREFIX;
 // setting middleware
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+app.use(authenticateJWT);
 
 // Import compoent
 importFile(`${root}/routers/`, [".DS_Store"]); // import semua file router

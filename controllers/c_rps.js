@@ -34,6 +34,7 @@ class ControllerRps {
   _getRps(query) {
     return new Promise(async (resolve, reject) => {
       try {
+        console.log("query", query);
         /**
          * add hook validate get rpss
          */
@@ -119,9 +120,11 @@ class ControllerRps {
 
         resolve(rps);
       } catch (error) {
-        console.log("err:_postUsers", error);
+        console.log("err:_postRps", error);
         resolve(error);
       }
     });
   }
 }
+
+module.exports = ControllerRps;
