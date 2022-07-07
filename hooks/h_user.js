@@ -44,7 +44,7 @@ module.exports = (params) => {
    */
   async function _usersFilterQuery(query) {
     try {
-      let { username, password } = query;
+      const { username, password } = query;
 
       query = {
         username,
@@ -83,5 +83,115 @@ module.exports = (params) => {
       console.log("_err:_usersResult", error);
       return result;
     }
+  }
+
+  /**
+   * ==========================
+   * Get Users
+   *
+   * _validateBeforeGetUsers
+   * ==========================
+   */
+  hook.addFilter(`${appPrefix}_${userPrefix}_query`, appPrefix, _getUsersFilterQuery, 10); // prettier-ignore
+
+  /**
+   * modify query get user
+   *
+   * @param {*} query
+   */
+  async function _getUsersFilterQuery(query) {
+    try {
+      const { username, type, status, fullname } = query;
+
+      // filter by fullname
+      if (!_.isNil(fullname)) {
+        query.fullname = fullname;
+      }
+
+      // filter by username
+      if (!_.isNil(username)) {
+        query.username = username;
+      }
+
+      // filter by status
+      if (!_.isNil(status)) {
+        delete query.status;
+        query.u_status = status;
+      }
+
+      // filter by type
+      if (!_.isNil(type)) {
+        delete query.type;
+        query.u_type = type;
+      }
+
+      return query;
+    } catch (error) {
+      console.log("err: _getUsersFilterQuery", error);
+      return query;
+    }
+  }
+
+  /**
+   * ==========================
+   * Post User
+   *
+   * _validateBeforePostUser
+   * _validateUserExists
+   * _insertUserMeta
+   * _insertUserToElastic
+   * ==========================
+   */
+  hook.addFilter( `${appPrefix}_validate_post_${userPrefix}`, appPrefix, _validateBeforePostUser, 10, 2 ) // prettier-ignore
+  hook.addFilter( `${appPrefix}_validate_post_${userPrefix}`, appPrefix, _validateUserExists, 20, 2 ) // prettier-ignore
+  hook.addAction( `${appPrefix}_after_post_${userPrefix}`, appPrefix, _insertUserMeta, 10, 2 ) // prettier-ignore
+
+  /**
+   * Validasi body data
+   *
+   * @param {*} res
+   * @param {*} query
+   * @returns
+   */
+  async function _validateBeforePostUser(res, query) {
+    const { fullname, username, password } = query;
+
+    if (_.isNil(fullname) || _.eq(fullname, "")) return `fullname required`;
+    if (_.isNil(username) || _.eq(username, "")) return `username required`;
+    if (_.isNil(password) || _.eq(password, "")) return `password required`;
+    return res;
+  }
+
+  /**
+   * Cek apakah user dengan username yang dimaskkan sudh terdaftar/blm
+   *
+   * @param {*} res
+   * @param {*} query
+   * @returns
+   */
+  async function _validateUserExists(res, query) {
+    try {
+      const { username } = query;
+      const isExist = await c_user._getUser({ username });
+      if (!_.isEmpty(isExist))
+        return `username already exists, please use other username`;
+      return res;
+    } catch (error) {
+      return res;
+    }
+  }
+
+  /**
+   * tambahkan user meta ke database
+   *
+   * @param   {[type]}  user   [user description]
+   * @param   {[type]}  query  [query description]
+   *
+   * @return  {[type]}         [return description]
+   */
+  async function _insertUserMeta(user, query) {
+    if (_.isNil(user._id)) return;
+    if (_.isNil(query.um_data)) return;
+    c_user._postUserMeta(user._id, query);
   }
 };

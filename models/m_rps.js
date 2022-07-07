@@ -9,22 +9,30 @@ const Schema = mongoose.Schema;
 
 const rpsSchema = Schema(
   {
-    course_created_at: Number,
-    course_created_at: Number,
-    u_name: String,
-    u_email: String,
-    u_password: String,
-    u_avatar: String,
-    u_status: String,
+    rps_created_at: Number,
+    rps_code: String,
+    rps_name: String,
+    rps_credit: Number,
+    rps_semester: Number,
+    rps_rev: Number,
+    rps_editable: Boolean,
+    rps_status: String,
   },
   {
     versionKey: false,
     timestamps: {
-      createdAt: "u_date_created",
-      updatedAt: "u_date_updated",
+      createdAt: "rps_created_at",
       currentTime: () => moment().unix(),
     },
   }
-).index({ u_name: 1, u_date_created: 1, u_email: 1, u_status: 1 });
+).index({
+  rps_code: 1,
+  rps_created_at: 1,
+  rps_name: 1,
+  rps_credit: 1,
+  rps_semester: 1,
+  rps_rev: 1,
+  rps_status: 1,
+});
 
 module.exports = mongoose.model("rps", rpsSchema);

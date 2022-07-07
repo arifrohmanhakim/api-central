@@ -10,6 +10,7 @@ const userSchema = Schema(
     u_username: String,
     u_password: String,
     u_status: String,
+    u_type: String,
   },
   {
     versionKey: false,
@@ -19,6 +20,12 @@ const userSchema = Schema(
       currentTime: () => moment().unix(),
     },
   }
-).index({ u_fullname: 1, u_date_created: 1, u_username: 1, u_status: 1 });
+).index({
+  u_fullname: 1,
+  u_date_created: 1,
+  u_username: 1,
+  u_status: 1,
+  u_type: 1,
+});
 
 module.exports = mongoose.model("user", userSchema);

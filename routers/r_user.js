@@ -6,13 +6,11 @@ module.exports = (params) => {
   /**
    * group route user by id
    *
-   * /${VERSION}/user/:id
+   * /user/:id
    *
    * GET
-   * PUT
-   * DELETE
    */
-  app.route(`/${env.VERSION}/user/:id`).get(async (req, res) => {
+  app.route(`/user/:id`).get(async (req, res) => {
     let _getUsers = await c_user._getUserById(req.params.id);
     res.json(_getUsers);
   });
@@ -20,13 +18,13 @@ module.exports = (params) => {
   /**
    * group route by user
    *
-   * /${VERSION}/user
+   * /user
    *
    * GET
    * POST
    */
   app
-    .route(`/${env.VERSION}/user`)
+    .route(`/user`)
     .get(async (req, res) => {
       let _getUsers = await c_user._getUser(req.query);
       res.json(_getUsers);
