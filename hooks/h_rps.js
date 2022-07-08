@@ -11,6 +11,7 @@ module.exports = (params) => {
    * ==========================
    */
   hook.addFilter(`${appPrefix}_${rpsPrefix}_query`, appPrefix, _getRpsFilterQuery, 10); // prettier-ignore
+  hook.addFilter(`${appPrefix}_${rpsPrefix}_result`, appPrefix, _modifyRpsResult, 10); // prettier-ignore
 
   /**
    * modify query get rps
@@ -19,47 +20,90 @@ module.exports = (params) => {
    */
   async function _getRpsFilterQuery(query) {
     try {
-      const { code, name, credit, semester, rev, status, editable } = query;
+      // filter by keyword
+      if (!_.isNil(query?.keyword)) {
+        query.rps_code = query?.keyword;
+        query.rps_name = query?.keyword;
+      }
 
       // filter by code
-      if (!_.isNil(code)) {
-        query.rps_code = code;
+      if (!_.isNil(query?.code)) {
+        query.rps_code = query?.code;
+        delete query.code;
       }
 
       // filter by name
-      if (!_.isNil(name)) {
-        query.rps_name = name;
+      if (!_.isNil(query?.name)) {
+        query.rps_name = query?.name;
+        delete query.name;
       }
 
-      // filter by name
-      if (!_.isNil(credit)) {
-        query.rps_credit = credit;
+      // filter by credit
+      if (!_.isNil(query?.credit)) {
+        query.rps_credit = query?.credit;
+        delete query.credit;
       }
 
       // filter by semester
-      if (!_.isNil(semester)) {
-        query.rps_semester = semester;
+      if (!_.isNil(query?.semester)) {
+        query.rps_semester = query?.semester;
+        delete query.semester;
       }
 
       // filter by rev
-      if (!_.isNil(rev)) {
-        query.rps_rev = rev;
+      if (!_.isNil(query?.rev)) {
+        query.rps_rev = query?.rev;
+        delete query.rev;
       }
 
       // filter by status
-      if (!_.isNil(status)) {
-        query.rps_status = status;
+      if (!_.isNil(query?.status)) {
+        query.rps_status = query?.status;
+        delete query.status;
       }
 
       // filter by editable
-      if (!_.isNil(editable)) {
-        query.rps_editable = editable;
+      if (!_.isNil(query?.editable)) {
+        query.rps_editable = query?.editable;
+        delete query.editable;
       }
 
-      return query;
+      return query || {};
     } catch (error) {
       console.log("err: _getRpsFilterQuery", error);
       return query;
+    }
+  }
+
+  /**
+   * modify / format ulang data yang muncul di user
+   *
+   * @param {*} result
+   */
+  async function _modifyRpsResult(result) {
+    try {
+      if (_.isEmpty(result?.data)) return result;
+      let newResult = [];
+      for (let index = 0; index < result?.data.length; index++) {
+        const item = result?.data[index];
+        newResult.push({
+          id: item._id,
+          code: item.rps_code,
+          name: item.rps_name,
+          credit: item.rps_credit,
+          semester: item.rps_semester,
+          rev: item.rps_rev,
+          created_at: item.rps_created_at,
+          editable: item.rps_editable,
+        });
+      }
+      return {
+        count: result?.total,
+        datetime: moment().unix(),
+        rps: newResult,
+      };
+    } catch (error) {
+      return result;
     }
   }
 

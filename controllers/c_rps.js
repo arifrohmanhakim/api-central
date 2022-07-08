@@ -34,7 +34,10 @@ class ControllerRps {
   _getRps(query) {
     return new Promise(async (resolve, reject) => {
       try {
-        console.log("query", query);
+        const skip = query?.skip || 0,
+          limit = query?.limit || env.LIMIT,
+          sort = query?.sort || "-_id";
+
         /**
          * add hook validate get rpss
          */
@@ -53,9 +56,16 @@ class ControllerRps {
         let newQuery = await hook.applyFilters(`${appPrefix}_${rpsPrefix}_query`, query); //prettier-ignore
 
         /**
+         * get mongodb total data by query
+         */
+        const countResult = await m_rps.countDocuments(newQuery);
+
+        /**
          * get mongodb data by query
          */
-        const result = await m_rps.find(newQuery).lean();
+        const result = await m_rps
+          .find(newQuery, null, { skip, limit, sort })
+          .lean();
 
         /**
          * add hook after get rps
@@ -65,7 +75,7 @@ class ControllerRps {
         /**
          * add hook apply filters to modify the result
          */
-        let newResult = await hook.applyFilters(`${appPrefix}_${rpsPrefix}_result`, result); //prettier-ignore
+        let newResult = await hook.applyFilters(`${appPrefix}_${rpsPrefix}_result`, {total: countResult, data: result}); //prettier-ignore
 
         resolve(newResult);
       } catch (error) {

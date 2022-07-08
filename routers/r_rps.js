@@ -26,11 +26,15 @@ module.exports = (params) => {
   app
     .route(`/rps`)
     .get(async (req, res) => {
-      let _getRps = await c_rps._getRps({});
+      let _getRps = await c_rps._getRps({
+        skip: req.query?.skip,
+        limit: req.query?.limit,
+        sort: req.query?.sort,
+      });
       res.json(_getRps);
     })
     .post(async (req, res) => {
-      let _searchRps = await c_rps._getRps(req.body);
+      let _searchRps = await c_rps._getRps({ ...req.body, user: req?.user });
       res.json(_searchRps);
     });
 
@@ -45,7 +49,7 @@ module.exports = (params) => {
   app
     .route(`/bo/rps`)
     .get(async (req, res) => {
-      let _getRps = await c_rps._getRps({ ...req?.user });
+      let _getRps = await c_rps._getRps({ ...req.query, user: req?.user });
       res.json(_getRps);
     })
     .post(async (req, res) => {
