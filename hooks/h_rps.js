@@ -5,6 +5,32 @@ module.exports = (params) => {
 
   /**
    * ==========================
+   * Get Detail RPS
+   *
+   * _validateDetailRps
+   * ==========================
+   */
+  hook.addFilter(`${appPrefix}_before_get_detail_${rpsPrefix}`, appPrefix, _validateDetailRps, 10, 2); // prettier-ignore
+
+  /**
+   * validate resId
+   *
+   * @param {*} res
+   * @param {*} rpsId
+   * @returns
+   */
+  async function _validateDetailRps(res, rpsId) {
+    try {
+      if (_.isNil(rpsId) || _.eq(rpsId, "")) return `resId required`;
+
+      return res;
+    } catch (error) {
+      return res;
+    }
+  }
+
+  /**
+   * ==========================
    * Get RPS
    *
    * _getRpsFilterQuery
@@ -28,6 +54,12 @@ module.exports = (params) => {
           $or: [{ rps_code: keyword }, { rps_name: keyword }],
         };
         delete query.keyword;
+      }
+
+      // filter by id
+      if (!_.isNil(query?.rps_id)) {
+        query._id = query?.rps_id;
+        delete query.rps_id;
       }
 
       // filter by code

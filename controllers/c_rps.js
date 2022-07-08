@@ -15,7 +15,22 @@ class ControllerRps {
   _getRpsById(rpsId) {
     return new Promise(async (resolve, reject) => {
       try {
-        resolve(this._getRps({ rps_id: rpsId }));
+        /**
+         * add hook validate get detail rps
+         */
+        let _validate = await hook.applyFilters(`${appPrefix}_validate_get_detail_${rpsPrefix}`, "", rpsId); //prettier-ignore
+        if (!_.eq(_validate, "")) return resolve(_validate);
+
+        /**
+         * add hook before get detail rps
+         */
+        hook.doAction(`${appPrefix}_before_get_detail_${rpsPrefix}`, rpsId, resolve); //prettier-ignore
+
+        const result = await m_rps.findById(rpsId);
+
+        console.log("result", result);
+
+        resolve(result);
         return;
       } catch (error) {
         console.log("err:_getRpsById", error);
@@ -39,7 +54,7 @@ class ControllerRps {
           sort = query?.sort || "-_id";
 
         /**
-         * add hook validate get rpss
+         * add hook validate get rps
          */
         let _validate = await hook.applyFilters(`${appPrefix}_validate_get_${rpsPrefix}`, "", query); //prettier-ignore
         if (!_.eq(_validate, "")) return resolve(_validate);

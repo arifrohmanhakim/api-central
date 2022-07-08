@@ -11,6 +11,7 @@ module.exports = (params) => {
    * GET
    */
   app.route(`/rps/:id`).get(async (req, res) => {
+    console.log("asd", req.params.id);
     let _getRpsById = await c_rps._getRpsById(req.params.id);
     res.json(_getRpsById);
   });
