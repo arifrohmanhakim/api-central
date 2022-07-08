@@ -6,8 +6,8 @@ const lecturersSchema = Schema(
   {
     l_date_created: Number,
     l_date_updated: Number,
-    l_name: String,
-    l_regno: String,
+    l_rps_id: { type: Schema.Types.ObjectId, required: true, ref: "rps" },
+    l_user_id: { type: Schema.Types.ObjectId, required: true, ref: "user" },
     l_status: String,
   },
   {
@@ -18,6 +18,6 @@ const lecturersSchema = Schema(
       currentTime: () => moment().unix(),
     },
   }
-).index({ l_name: 1, l_date_created: 1, l_regno: 1, l_status: 1 });
+).index({ l_rps_id: 1, l_date_created: 1, l_user_id: 1, l_status: 1 });
 
 module.exports = mongoose.model("lecturers", lecturersSchema);

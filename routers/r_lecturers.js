@@ -1,38 +1,30 @@
-const ControllerUser = require("../controllers/c_lecturers");
+const ControllerLecturers = require("../controllers/c_lecturers");
 
 module.exports = (params) => {
-  const c_user = new ControllerUser(params);
+  const c_lecturers = new ControllerLecturers(params);
 
   /**
-   * group route user by id
+   * group route bo rps lecturers by id
    *
-   * /${VERSION}/user/:id
+   * /bo/rps/:rpsId/lecturers
    *
    * GET
    * PUT
    * DELETE
    */
-  app.route(`/${env.VERSION}/user/:id`).get(async (req, res) => {
-    let _getUsers = await c_user._getUserById(req.params.id);
-    res.json(_getUsers);
-  });
-
-  /**
-   * group route by user
-   *
-   * /${VERSION}/user
-   *
-   * GET
-   * POST
-   */
   app
-    .route(`/${env.VERSION}/user`)
+    .route(`/bo/rps/:rpsId/lecturers`)
     .get(async (req, res) => {
-      let _getUsers = await c_user._getUsers(req.query);
-      res.json(_getUsers);
+      let _getLecturersById = await c_lecturers._getLecturersById(
+        req.params.rpsId
+      );
+      res.json(_getLecturersById);
     })
     .post(async (req, res) => {
-      let _postUsers = await c_user._postUsers(req.body);
-      res.json(_postUsers);
+      let _postLecturers = await c_lecturers._postLecturers({
+        ...req.body,
+        rps_id: req.params.rpsId,
+      });
+      res.json(_postLecturers);
     });
 };

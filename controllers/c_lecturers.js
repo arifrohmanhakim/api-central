@@ -36,20 +36,20 @@ class ControllerLecturers {
         /**
          * add hook validate get users
          */
-        let _validate = await hook.applyFilters(`${appPrefix}_validate_get_${lecturerPrefix}`, "", query); //prettier-ignore
+        let _validate = await hook.applyFilters(`${appPrefix}_validate_get_${lecturersPrefix}`, "", query); //prettier-ignore
         if (!_.eq(_validate, "")) return resolve(_validate);
 
         /**
          * add hook before get lecturers
          *
          */
-        hook.doAction(`${appPrefix}_before_get_${lecturerPrefix}`, query, resolve); //prettier-ignore
+        hook.doAction(`${appPrefix}_before_get_${lecturersPrefix}`, query, resolve); //prettier-ignore
 
         /**
          * add hook modify lecturers query
          *
          */
-        let newQuery = await hook.applyFilters(`${appPrefix}_${lecturerPrefix}_query`, query); //prettier-ignore
+        let newQuery = await hook.applyFilters(`${appPrefix}_${lecturersPrefix}_query`, query); //prettier-ignore
 
         /**
          * get elastic data by query
@@ -61,17 +61,70 @@ class ControllerLecturers {
          *
          * _insertLogGetUserById 10
          */
-        hook.doAction(`${appPrefix}_after_get_${lecturerPrefix}`, result, newQuery); //prettier-ignore
+        hook.doAction(`${appPrefix}_after_get_${lecturersPrefix}`, result, newQuery); //prettier-ignore
 
         /**
          * add hook apply filters to modify the result
          */
-        let newResult = await hook.applyFilters(`${appPrefix}_${lecturerPrefix}_result`, result); //prettier-ignore
+        let newResult = await hook.applyFilters(`${appPrefix}_${lecturersPrefix}_result`, result); //prettier-ignore
 
         resolve(newResult);
       } catch (error) {
         console.log("err:_getLecturers", error);
         return reject(error);
+      }
+    });
+  }
+
+  /**
+   * add new lecturers
+   *
+   * @param   {[type]}  query  [query description]
+   * lecturer_id - dosen pengampu (user)
+   *
+   * @return  {[type]}         [return description]
+   */
+  _postLecturers(query) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const { rps_id, lecturer_id, status } = query;
+
+        /**
+         * add hook validate post lecturers
+         */
+        let _validate = await hook.applyFilters(`${appPrefix}_validate_post_${lecturersPrefix}`, "", query); // prettier-ignore
+        if (!_.eq(_validate, "")) return resolve(_validate);
+
+        /**
+         * add hook before post lecturers
+         *
+         */
+        await hook.doAction(`${appPrefix}_before_post_${lecturersPrefix}`, query, resolve); // prettier-ignore
+
+        /**
+         * add data into mongodb
+         */
+        let result = await m_lecturers.create({
+          l_rps_id: rps_id || "",
+          l_user_id: lecturer_id || "",
+          l_status: status || "active",
+        });
+
+        /**
+         * add hook after post lecturers
+         *
+         */
+        await hook.doAction(`${appPrefix}_after_post_${lecturersPrefix}`, result, query); // prettier-ignore
+
+        /**
+         * add hook apply filters to modify the result
+         */
+        let newResult = await hook.applyFilters(`${appPrefix}_${lecturersPrefix}_result`, result); //prettier-ignore
+
+        resolve(newResult);
+      } catch (error) {
+        console.log("err:_postLecturers", error);
+        resolve(error);
       }
     });
   }

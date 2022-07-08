@@ -26,9 +26,10 @@ class ControllerRps {
          */
         hook.doAction(`${appPrefix}_before_get_detail_${rpsPrefix}`, rpsId, resolve); //prettier-ignore
 
+        /**
+         * get mongodb data by id
+         */
         const result = await m_rps.findById(rpsId);
-
-        console.log("result", result);
 
         resolve(result);
         return;

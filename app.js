@@ -29,7 +29,7 @@ global.moment = moment;
 global.jwt = jwt;
 
 global.appPrefix = env.PREFIX;
-global.lecturerPrefix = env.LECTURERS_PREFIX;
+global.lecturersPrefix = env.LECTURERS_PREFIX;
 global.userPrefix = env.USER_PREFIX;
 global.rpsPrefix = env.RPS_PREFIX;
 

@@ -1,7 +1,7 @@
 /**
  * Helpers utilities
  */
-
+const ObjectId = require("mongoose").Types.ObjectId;
 const fs = require("fs");
 
 /**
@@ -91,3 +91,18 @@ function authenticateJWT(req, res, next) {
   }
 }
 exports.authenticateJWT = authenticateJWT;
+
+/**
+ * check is string valid mongoDB objectId
+ *
+ * @param {*} id
+ * @returns
+ */
+function isValidObjectId(id) {
+  if (ObjectId.isValid(id)) {
+    if (String(new ObjectId(id)) === id) return true;
+    return false;
+  }
+  return false;
+}
+exports.isValidObjectId = isValidObjectId;

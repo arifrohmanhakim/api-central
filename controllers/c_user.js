@@ -15,8 +15,25 @@ class ControllerUser {
   _getUserById(userId) {
     return new Promise(async (resolve, reject) => {
       try {
-        resolve(this._getUser({ l_id: userId }));
-        return;
+        /**
+         * add hook validate get detail user
+         */
+        let _validate = await hook.applyFilters(`${appPrefix}_validate_get_detail_${userPrefix}`, "", userId); //prettier-ignore
+        if (!_.eq(_validate, "")) return resolve(_validate);
+
+        /**
+         * add hook before get detail rps
+         */
+        hook.doAction(`${appPrefix}_before_get_detail_${userPrefix}`, userId, resolve); //prettier-ignore
+
+        /**
+         * get mongodb data by id
+         */
+        const result = await m_user.findById(userId);
+
+        console.log("user resut", result);
+
+        resolve(result);
       } catch (error) {
         console.log("err:_getUserById", error);
         reject(error.message);
