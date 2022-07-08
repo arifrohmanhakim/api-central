@@ -22,8 +22,12 @@ module.exports = (params) => {
     try {
       // filter by keyword
       if (!_.isNil(query?.keyword)) {
-        query.rps_code = query?.keyword;
-        query.rps_name = query?.keyword;
+        const keyword = { $regex: query?.keyword, $options: "i" };
+        query = {
+          ...query,
+          $or: [{ rps_code: keyword }, { rps_name: keyword }],
+        };
+        delete query.keyword;
       }
 
       // filter by code
@@ -34,7 +38,8 @@ module.exports = (params) => {
 
       // filter by name
       if (!_.isNil(query?.name)) {
-        query.rps_name = query?.name;
+        const name = { $regex: query?.name, $options: "i" };
+        query.rps_name = name;
         delete query.name;
       }
 
@@ -67,6 +72,8 @@ module.exports = (params) => {
         query.rps_editable = query?.editable;
         delete query.editable;
       }
+
+      console.log("query", query);
 
       return query || {};
     } catch (error) {
