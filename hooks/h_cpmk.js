@@ -1,8 +1,10 @@
 const ControllerCpmk = require("../controllers/c_cpmk");
+const ControllerRps = require("../controllers/c_rps");
 const { isValidObjectId } = require("../utils/u_helpers");
 
 module.exports = (params) => {
   const c_cpmk = new ControllerCpmk(params);
+  const c_rps = new ControllerRps(params);
 
   /**
    * ==========================
@@ -151,7 +153,7 @@ module.exports = (params) => {
         id: result._id,
       };
     } catch (error) {
-      console.log("err:_modifyCpmkGetResult", error);
+      console.log("err:_modifyCpmkDeleteResult", error);
       return result;
     }
   }

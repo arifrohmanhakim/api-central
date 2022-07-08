@@ -199,15 +199,8 @@ class ControllerCpmk {
 
         /**
          * add hook validate delete cpmk
-         *
-         * _validateBeforeDeleteCpmkness 10
-         * _validateDeleteCpmkxist 20
          */
-        let _validate = await hook.applyFilters(
-          `${appPrefix}_validate_delete_${cpmkPrefix}`,
-          "",
-          query
-        ); //prettier-ignore
+        let _validate = await hook.applyFilters(`${appPrefix}_validate_delete_${cpmkPrefix}`, "", query); //prettier-ignore
         if (!_.eq(_validate, "")) return resolve(_validate);
 
         /**
@@ -234,11 +227,7 @@ class ControllerCpmk {
          * add hook after delete cpmk
          *
          */
-        await hook.doAction(
-          `${appPrefix}_after_delete_${cpmkPrefix}`,
-          results,
-          query
-        ); //prettier-ignore
+        await hook.doAction(`${appPrefix}_after_delete_${cpmkPrefix}`, results, query); //prettier-ignore
 
         /**
          * add hook apply filters to modify the result

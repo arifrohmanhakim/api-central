@@ -33,6 +33,7 @@ global.lecturersPrefix = env.LECTURERS_PREFIX;
 global.userPrefix = env.USER_PREFIX;
 global.rpsPrefix = env.RPS_PREFIX;
 global.cpmkPrefix = env.CPMK_PREFIX;
+global.refsPrefix = env.REFS_PREFIX;
 
 // setting middleware
 app.use(bodyParser.urlencoded({ extended: false }));
