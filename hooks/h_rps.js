@@ -1,7 +1,9 @@
 const ControllerRps = require("../controllers/c_rps");
+const ControllerLectures = require("../controllers/c_lecturers");
 
 module.exports = (params) => {
   const c_rps = new ControllerRps(params);
+  const c_lecturers = new ControllerLectures(params);
 
   /**
    * ==========================
@@ -11,6 +13,8 @@ module.exports = (params) => {
    * ==========================
    */
   hook.addFilter(`${appPrefix}_before_get_detail_${rpsPrefix}`, appPrefix, _validateDetailRps, 10, 2); // prettier-ignore
+  hook.addFilter(`${appPrefix}_${rpsPrefix}_detail_result`, appPrefix, _modifyRpsDetailResult, 10); // prettier-ignore
+  hook.addFilter(`${appPrefix}_${rpsPrefix}_detail_result`, appPrefix, _modifyRpsDetailResultCourseCreator, 20); // prettier-ignore
 
   /**
    * validate resId
@@ -26,6 +30,63 @@ module.exports = (params) => {
       return res;
     } catch (error) {
       return res;
+    }
+  }
+
+  /**
+   * modify / format ulang data yang muncul di user
+   *
+   * @param {*} result
+   */
+  async function _modifyRpsDetailResult(result) {
+    try {
+      if (_.isNil(result) || _.isEmpty(result)) return result;
+      let newResult = {
+        course_id: result?._id,
+        course_code: result?.rps_code,
+        course_name: result?.rps_name,
+        course_credit: result?.rps_credit,
+        course_desc: result?.rps_desc,
+        course_rev: result?.rps_rev,
+        course_semester: result?.rps_semester,
+        course_material: result?.rps_materi,
+        course_created_at: result?.rps_created_at,
+      };
+
+      console.log("result", newResult);
+      return newResult;
+    } catch (error) {
+      return result;
+    }
+  }
+
+  /**
+   * modify / format ulang data yang muncul di user
+   * add course creator
+   *
+   * @param {*} result
+   */
+  async function _modifyRpsDetailResultCourseCreator(result) {
+    try {
+      let newResult = await result;
+      if (_.isNil(newResult) || _.isEmpty(newResult)) return newResult;
+
+      // get course creator
+      const lectureCreator = await c_lecturers._getLecturers({
+        rps_id: newResult?.course_id.toString(),
+      });
+
+      if (!_.isEmpty(lectureCreator)) {
+        const item = _.first(lectureCreator);
+        newResult.course_creator = {
+          creator_id: item.id,
+          creator_name: item.name,
+          creator_regno: item.regno,
+        };
+      }
+      return newResult;
+    } catch (error) {
+      return result;
     }
   }
 
@@ -105,7 +166,17 @@ module.exports = (params) => {
         delete query.editable;
       }
 
-      console.log("query", query);
+      // filter by desc
+      if (!_.isNil(query?.desc)) {
+        query.rps_desc = query?.desc;
+        delete query.desc;
+      }
+
+      // filter by materi
+      if (!_.isNil(query?.materi)) {
+        query.rps_materi = query?.materi;
+        delete query.materi;
+      }
 
       return query || {};
     } catch (error) {

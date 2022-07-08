@@ -17,6 +17,8 @@ const rpsSchema = Schema(
     rps_rev: Number,
     rps_editable: Boolean,
     rps_status: String,
+    rps_desc: String,
+    rps_materi: String,
   },
   {
     versionKey: false,
@@ -33,6 +35,8 @@ const rpsSchema = Schema(
   rps_semester: 1,
   rps_rev: 1,
   rps_status: 1,
+  rps_desc: 1,
+  rps_materi: 1,
 });
 
 module.exports = mongoose.model("rps", rpsSchema);

@@ -31,7 +31,12 @@ class ControllerRps {
          */
         const result = await m_rps.findById(rpsId);
 
-        resolve(result);
+        /**
+         * add hook apply filters to modify the result
+         */
+        let newResult = await hook.applyFilters(`${appPrefix}_${rpsPrefix}_detail_result`, result); //prettier-ignore
+
+        resolve(newResult);
         return;
       } catch (error) {
         console.log("err:_getRpsById", error);
