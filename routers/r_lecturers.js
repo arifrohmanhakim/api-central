@@ -9,16 +9,18 @@ module.exports = (params) => {
    * /bo/rps/:rpsId/lecturers
    *
    * GET
+   * POST
    * PUT
    * DELETE
    */
   app
     .route(`/bo/rps/:rpsId/lecturers`)
     .get(async (req, res) => {
-      let _getLecturersById = await c_lecturers._getLecturersById(
-        req.params.rpsId
-      );
-      res.json(_getLecturersById);
+      let _getLecturers = await c_lecturers._getLecturers({
+        rps_id: req.params.rpsId,
+        ...req.query,
+      });
+      res.json(_getLecturers);
     })
     .post(async (req, res) => {
       let _postLecturers = await c_lecturers._postLecturers({

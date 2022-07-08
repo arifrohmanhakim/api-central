@@ -95,6 +95,29 @@ class ControllerUser {
   }
 
   /**
+   * get user Meta by filter
+   *
+   * @param   {[type]}  query  [query description]
+   *
+   * @return  {[type]}         [return description]
+   */
+  _getUserMeta(query) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        if (_.isNil(query?.u_id)) return "u_id required";
+        /**
+         * get mongodb data by query
+         */
+        const result = await m_user_meta.find(query).lean();
+        resolve(result);
+      } catch (error) {
+        console.log("err:_getUser", error);
+        return reject(error);
+      }
+    });
+  }
+
+  /**
    * login user
    *
    * @param {*} query

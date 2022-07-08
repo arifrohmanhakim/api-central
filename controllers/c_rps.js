@@ -86,7 +86,7 @@ class ControllerRps {
         /**
          * add hook after get rps
          */
-        hook.doAction(`${appPrefix}_after_get_${rpsPrefix}`, result, newQuery); //prettier-ignore
+        hook.doAction(`${appPrefix}_after_get_${rpsPrefix}`, {total: countResult, data: result}, newQuery); //prettier-ignore
 
         /**
          * add hook apply filters to modify the result

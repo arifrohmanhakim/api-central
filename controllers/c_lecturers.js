@@ -33,6 +33,10 @@ class ControllerLecturers {
   _getLecturers(query) {
     return new Promise(async (resolve, reject) => {
       try {
+        const skip = query?.skip || 0,
+          limit = query?.limit || env.LIMIT,
+          sort = query?.sort || "-_id";
+
         /**
          * add hook validate get users
          */
@@ -52,21 +56,30 @@ class ControllerLecturers {
         let newQuery = await hook.applyFilters(`${appPrefix}_${lecturersPrefix}_query`, query); //prettier-ignore
 
         /**
+         * get mongodb total data by query
+         */
+        const countResult = await m_lecturers.countDocuments(newQuery);
+
+        /**
          * get elastic data by query
          */
-        const result = await m_lecturers.find(newQuery).lean();
+        const result = await m_lecturers
+          .find(newQuery, null, { skip, limit, sort })
+          .lean()
+          .populate({ path: "l_user_id" })
+          .populate({ path: "l_rps_id" });
 
         /**
          * add hook after get users
          *
          * _insertLogGetUserById 10
          */
-        hook.doAction(`${appPrefix}_after_get_${lecturersPrefix}`, result, newQuery); //prettier-ignore
+        hook.doAction(`${appPrefix}_after_get_${lecturersPrefix}`, {total: countResult, data: result}, newQuery); //prettier-ignore
 
         /**
          * add hook apply filters to modify the result
          */
-        let newResult = await hook.applyFilters(`${appPrefix}_${lecturersPrefix}_result`, result); //prettier-ignore
+        let newResult = await hook.applyFilters(`${appPrefix}_${lecturersPrefix}_result`, {total: countResult, data: result}); //prettier-ignore
 
         resolve(newResult);
       } catch (error) {
@@ -119,7 +132,7 @@ class ControllerLecturers {
         /**
          * add hook apply filters to modify the result
          */
-        let newResult = await hook.applyFilters(`${appPrefix}_${lecturersPrefix}_result`, result); //prettier-ignore
+        let newResult = await hook.applyFilters(`${appPrefix}_${lecturersPrefix}_post_result`, result); //prettier-ignore
 
         resolve(newResult);
       } catch (error) {
