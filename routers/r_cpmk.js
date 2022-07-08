@@ -36,12 +36,22 @@ module.exports = (params) => {
    * PUT
    * DELETE
    */
-  app.route(`/bo/rps/:rpsId/cpmk/:cpmkId`).put(async (req, res) => {
-    let _putCpmk = await c_cpmk._putCpmk({
-      ...req.body,
-      rps_id: req.params.rpsId,
-      cpmk_id: req.params.cpmkId,
+  app
+    .route(`/bo/rps/:rpsId/cpmk/:cpmkId`)
+    .put(async (req, res) => {
+      let _putCpmk = await c_cpmk._putCpmk({
+        ...req.query,
+        rps_id: req.params.rpsId,
+        cpmk_id: req.params.cpmkId,
+      });
+      res.json(_putCpmk);
+    })
+    .delete(async (req, res) => {
+      let _deleteCpmk = await c_cpmk._deleteCpmk({
+        ...req.query,
+        rps_id: req.params.rpsId,
+        cpmk_id: req.params.cpmkId,
+      });
+      res.json(_deleteCpmk);
     });
-    res.json(_putCpmk);
-  });
 };

@@ -87,11 +87,66 @@ module.exports = (params) => {
    * @param {*} result
    */
   async function _modifyCpmkPutResult(result) {
-    console.log("pas", result);
     try {
       return {
         status: "success",
         message: "berhasil merubah data cpmk",
+        datetime: moment().unix(),
+        id: result._id,
+      };
+    } catch (error) {
+      console.log("err:_modifyCpmkGetResult", error);
+      return result;
+    }
+  }
+
+  /**
+   * ==========================
+   * Delete Cpmk
+   *
+   * _validateBeforeDeleteCpmk
+   * ==========================
+   */
+  hook.addFilter(`${appPrefix}_validate_delete_${cpmkPrefix}`, appPrefix, _validateBeforeDeleteCpmk, 10, 2); // prettier-ignore
+  hook.addFilter(`${appPrefix}_${cpmkPrefix}_delete_result`, appPrefix, _modifyCpmkDeleteResult, 10); // prettier-ignore
+
+  /**
+   * Validasi body data
+   *
+   * @param {*} resolve
+   * @param {*} query
+   * @returns
+   */
+  async function _validateBeforeDeleteCpmk(res, query) {
+    try {
+      const { cpmk_id, rps_id } = query;
+      // check is rps_id not empty
+      if (_.isNil(rps_id) || _.eq(rps_id, "")) return `rps_id required`;
+
+      // check is cpmk_id not empty
+      if (_.isNil(cpmk_id) || _.eq(cpmk_id, "")) return `cpmk_id required`;
+
+      // validate type is ObjectId
+      if (!isValidObjectId(rps_id)) return "rps_id not valid";
+      if (!isValidObjectId(cpmk_id)) return "cpmk_id not valid";
+
+      return res;
+    } catch (error) {
+      _e("err: _validateBeforeDeleteCpmk", error);
+      return error.message;
+    }
+  }
+
+  /**
+   * modify / format ulang data yang muncul di user
+   *
+   * @param {*} result
+   */
+  async function _modifyCpmkDeleteResult(result) {
+    try {
+      return {
+        status: "success",
+        message: "berhasil menghapus data cpmk",
         datetime: moment().unix(),
         id: result._id,
       };

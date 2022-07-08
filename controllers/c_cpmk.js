@@ -184,6 +184,74 @@ class ControllerCpmk {
       }
     });
   }
+
+  /**
+   * delete cpmk by cpmk id
+   *
+   * @param   {[type]}  query  [query description]
+   *
+   * @return  {[type]}          [return description]
+   */
+  _deleteCpmk(query) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let results = "";
+
+        /**
+         * add hook validate delete cpmk
+         *
+         * _validateBeforeDeleteCpmkness 10
+         * _validateDeleteCpmkxist 20
+         */
+        let _validate = await hook.applyFilters(
+          `${appPrefix}_validate_delete_${cpmkPrefix}`,
+          "",
+          query
+        ); //prettier-ignore
+        if (!_.eq(_validate, "")) return resolve(_validate);
+
+        /**
+         * add hook before delete cpmk
+         *
+         */
+        await hook.doAction(`${appPrefix}_before_delete_${cpmkPrefix}`, query); //prettier-ignore
+
+        /**
+         * Delete permanent from mongodb if
+         * have params force == "true"
+         * else only change cpmk status to deleted
+         */
+        if (!_.isNil(query.force) && _.eq(query.force, "true")) {
+          results = await m_cpmk.deleteOne({ _id: query.cpmk_id });
+        } else {
+          results = await m_cpmk.findOneAndUpdate(
+            { _id: query.cpmk_id },
+            { cpmk_status: "deleted" }
+          );
+        }
+
+        /**
+         * add hook after delete cpmk
+         *
+         */
+        await hook.doAction(
+          `${appPrefix}_after_delete_${cpmkPrefix}`,
+          results,
+          query
+        ); //prettier-ignore
+
+        /**
+         * add hook apply filters to modify the result
+         */
+        let newResult = await hook.applyFilters(`${appPrefix}_${cpmkPrefix}_delete_result`, results); //prettier-ignore
+
+        resolve(newResult);
+      } catch (error) {
+        _e("err:_deleteCpmk", error);
+        resolve(error);
+      }
+    });
+  }
 }
 
 module.exports = ControllerCpmk;
