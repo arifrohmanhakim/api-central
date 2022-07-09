@@ -8,12 +8,38 @@ module.exports = (params) => {
 
   /**
    * ==========================
-   * Get Lecturers
+   * Get refs
    *
-   * _getLecturersFilterQuery
+   * _getrefsFilterQuery
    * ==========================
    */
+  hook.addFilter(`${appPrefix}_${refsPrefix}_query`, appPrefix, _getRefsFilterQuery, 10); // prettier-ignore
   hook.addFilter(`${appPrefix}_${refsPrefix}_get_result`, appPrefix, _modifyRefsGetResult, 10); // prettier-ignore
+
+  /**
+   * modify query get refs
+   *
+   * @param {*} query
+   */
+  async function _getRefsFilterQuery(query) {
+    try {
+      // filter by status
+      if (!_.isNil(query?.status)) {
+        query.refs_status = query?.status;
+        delete query.status;
+      }
+      // filter by lecturer
+      if (!_.isNil(query?.lecturer_id)) {
+        query.l_user_id = query?.lecturer_id;
+        delete query.lecturer_id;
+      }
+
+      return query || {};
+    } catch (error) {
+      console.log("err: _getRefsFilterQuery", error);
+      return query;
+    }
+  }
 
   /**
    * modify / format ulang data yang muncul di user
@@ -22,7 +48,6 @@ module.exports = (params) => {
    */
   async function _modifyRefsGetResult(result) {
     try {
-      console.log("result", result);
       if (_.isEmpty(result?.data)) return result;
       let newResult = [];
       for (let index = 0; index < result?.data.length; index++) {
@@ -31,6 +56,7 @@ module.exports = (params) => {
           id: item._id,
           category: item.refs_category,
           name: item.refs_title,
+          status: item.refs_status,
         });
       }
       return {
