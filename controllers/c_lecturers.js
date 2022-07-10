@@ -141,6 +141,133 @@ class ControllerLecturers {
       }
     });
   }
+
+  /**
+   * update lecturers
+   *
+   * @param   {[type]}  query  [query description]
+   *
+   * @return  {[type]}         [return description]
+   */
+  _putLecturers(query) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const {
+          lecturers_id,
+          rps_id,
+          lecturer_id, // user id
+          status,
+        } = query;
+
+        /**
+         * add hook validate put ${lecturersPrefix}
+         */
+        let _validate = await hook.applyFilters(`${appPrefix}_validate_put_${lecturersPrefix}`, "", query); // prettier-ignore
+        if (!_.eq(_validate, "")) return resolve(_validate);
+
+        /**
+         * add hook before put ${lecturersPrefix}
+         *
+         */
+        hook.doAction(
+          `${appPrefix}_before_put_${lecturersPrefix}`,
+          query,
+          resolve
+        );
+
+        let result = await m_lecturers.findOneAndUpdate(
+          {
+            _id: lecturers_id,
+          },
+          {
+            ...(lecturer_id && { l_user_id: lecturer_id }),
+            ...(status && { lecturers_status: status }),
+          }
+        );
+
+        /**
+         * check if mongodb return null
+         */
+        if (_.isNil(result)) return resolve(`${lecturersPrefix} not found`);
+
+        /**
+         * add hook after put ${lecturersPrefix}
+         */
+        hook.doAction(
+          `${appPrefix}_after_put_${lecturersPrefix}`,
+          result,
+          query
+        );
+
+        /**
+         * add hook apply filters to modify the result
+         */
+        let newResult = await hook.applyFilters(`${appPrefix}_${lecturersPrefix}_put_result`, result); //prettier-ignore
+
+        resolve(newResult);
+      } catch (error) {
+        console.log("err:_putLecturers", error);
+        resolve(error);
+      }
+    });
+  }
+
+  /**
+   * delete lecturers by lecturers id
+   *
+   * @param   {[type]}  query  [query description]
+   *
+   * @return  {[type]}          [return description]
+   */
+  _deleteLecturers(query) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let results = "";
+
+        /**
+         * add hook validate delete lecturers
+         */
+        let _validate = await hook.applyFilters(`${appPrefix}_validate_delete_${lecturersPrefix}`, "", query); //prettier-ignore
+        if (!_.eq(_validate, "")) return resolve(_validate);
+
+        /**
+         * add hook before delete lecturers
+         *
+         */
+        await hook.doAction(`${appPrefix}_before_delete_${lecturersPrefix}`, query); //prettier-ignore
+
+        /**
+         * Delete permanent from mongodb if
+         * have params force == "true"
+         * else only change lecturers status to deleted
+         */
+        if (!_.isNil(query.force) && _.eq(query.force, "true")) {
+          results = await m_lecturers.deleteOne({ _id: query.lecturers_id });
+        } else {
+          results = await m_lecturers.findOneAndUpdate(
+            { _id: query.lecturers_id },
+            { lecturers_status: "deleted" }
+          );
+        }
+
+        /**
+         * add hook after delete lecturers
+         *
+         */
+        await hook.doAction(`${appPrefix}_after_delete_${lecturersPrefix}`, results, query); //prettier-ignore
+
+        /**
+         * add hook apply filters to modify the result
+         */
+        let newResult = await hook.applyFilters(`${appPrefix}_${lecturersPrefix}_delete_result`, results); //prettier-ignore
+
+        resolve(newResult);
+      } catch (error) {
+        _e("err:_deleteLecturers", error);
+        resolve(error);
+      }
+    });
+  }
 }
 
 module.exports = ControllerLecturers;

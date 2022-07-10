@@ -53,7 +53,6 @@ module.exports = (params) => {
         course_created_at: result?.rps_created_at,
       };
 
-      console.log("result", newResult);
       return newResult;
     } catch (error) {
       return result;

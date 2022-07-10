@@ -39,19 +39,27 @@ module.exports = (params) => {
   app
     .route(`/bo/rps/:rpsId/assessments/:assessmentsId`)
     .put(async (req, res) => {
-      let _putAssessments = await c_assessments._putAssessments({
-        ...req.body,
-        rps_id: req.params.rpsId,
-        assessments_id: req.params.assessmentsId,
-      });
-      res.json(_putAssessments);
+      try {
+        let _putAssessments = await c_assessments._putAssessments({
+          ...req.body,
+          rps_id: req.params.rpsId,
+          assessments_id: req.params.assessmentsId,
+        });
+        res.json(_putAssessments);
+      } catch (error) {
+        res.json(error);
+      }
     })
     .delete(async (req, res) => {
-      let _deleteAssessments = await c_assessments._deleteAssessments({
-        ...req.query,
-        rps_id: req.params.rpsId,
-        assessments_id: req.params.assessmentsId,
-      });
-      res.json(_deleteAssessments);
+      try {
+        let _deleteAssessments = await c_assessments._deleteAssessments({
+          ...req.query,
+          rps_id: req.params.rpsId,
+          assessments_id: req.params.assessmentsId,
+        });
+        res.json(_deleteAssessments);
+      } catch (error) {
+        res.json(error);
+      }
     });
 };

@@ -29,4 +29,31 @@ module.exports = (params) => {
       });
       res.json(_postLecturers);
     });
+
+  /**
+   * group route bo rps lecturers by id detail
+   *
+   * /bo/rps/:rpsId/lecturers/:lecturersId
+   *
+   * PUT
+   * DELETE
+   */
+  app
+    .route(`/bo/rps/:rpsId/lecturers/:lecturersId`)
+    .put(async (req, res) => {
+      let _putLecturers = await c_lecturers._putLecturers({
+        ...req.body,
+        rps_id: req.params.rpsId,
+        lecturers_id: req.params.lecturersId,
+      });
+      res.json(_putLecturers);
+    })
+    .delete(async (req, res) => {
+      let _deleteLecturers = await c_lecturers._deleteLecturers({
+        ...req.query,
+        rps_id: req.params.rpsId,
+        lecturers_id: req.params.lecturersId,
+      });
+      res.json(_deleteLecturers);
+    });
 };
