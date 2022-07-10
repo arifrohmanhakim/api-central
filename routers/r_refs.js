@@ -40,7 +40,7 @@ module.exports = (params) => {
     .route(`/bo/rps/:rpsId/refs/:refsId`)
     .put(async (req, res) => {
       let _putRefs = await c_refs._putRefs({
-        ...req.query,
+        ...req.body,
         rps_id: req.params.rpsId,
         refs_id: req.params.refsId,
       });
