@@ -1,9 +1,11 @@
 const ControllerRps = require("../controllers/c_rps");
 const ControllerLectures = require("../controllers/c_lecturers");
+const ControllerRefs = require("../controllers/c_refs");
 
 module.exports = (params) => {
   const c_rps = new ControllerRps(params);
   const c_lecturers = new ControllerLectures(params);
+  const c_refs = new ControllerRefs(params);
 
   /**
    * ==========================
@@ -15,6 +17,7 @@ module.exports = (params) => {
   hook.addFilter(`${appPrefix}_before_get_detail_${rpsPrefix}`, appPrefix, _validateDetailRps, 10, 2); // prettier-ignore
   hook.addFilter(`${appPrefix}_${rpsPrefix}_detail_result`, appPrefix, _modifyRpsDetailResult, 10); // prettier-ignore
   hook.addFilter(`${appPrefix}_${rpsPrefix}_detail_result`, appPrefix, _modifyRpsDetailResultCourseCreator, 20); // prettier-ignore
+  hook.addFilter(`${appPrefix}_${rpsPrefix}_detail_result`, appPrefix, _modifyRpsDetailResultCourseReferences, 30); // prettier-ignore
 
   /**
    * validate resId
@@ -73,6 +76,7 @@ module.exports = (params) => {
       // get course creator
       const lectureCreator = await c_lecturers._getLecturers({
         rps_id: newResult?.course_id.toString(),
+        status: "active",
       });
 
       if (!_.isEmpty(lectureCreator)) {
@@ -85,6 +89,32 @@ module.exports = (params) => {
       }
       return newResult;
     } catch (error) {
+      return result;
+    }
+  }
+
+  /**
+   * add references
+   * add course references
+   *
+   * @param {*} result
+   */
+  async function _modifyRpsDetailResultCourseReferences(result) {
+    try {
+      let newResult = await result;
+      if (_.isNil(newResult) || _.isEmpty(newResult)) return newResult;
+
+      // get course refs
+      const referencesCreator = await c_refs._getRefs({
+        rps_id: newResult?.course_id.toString(),
+        status: "active",
+      });
+      if (!_.isEmpty(referencesCreator.refs)) {
+        newResult.course_references = referencesCreator.refs;
+      }
+      return newResult;
+    } catch (error) {
+      console.log("err:_modifyRpsDetailResultCourseReferences", error);
       return result;
     }
   }
