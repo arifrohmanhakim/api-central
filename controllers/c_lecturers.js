@@ -181,7 +181,7 @@ class ControllerLecturers {
           },
           {
             ...(lecturer_id && { l_user_id: lecturer_id }),
-            ...(status && { lecturers_status: status }),
+            ...(status && { l_status: status }),
           }
         );
 

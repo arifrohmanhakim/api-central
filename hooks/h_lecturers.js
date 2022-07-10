@@ -62,6 +62,11 @@ module.exports = (params) => {
         query.l_user_id = query?.lecturer_id;
         delete query.lecturer_id;
       }
+      // filter by status
+      if (!_.isNil(query?.status)) {
+        query.l_status = query?.status;
+        delete query.status;
+      }
 
       return query || {};
     } catch (error) {
@@ -99,6 +104,7 @@ module.exports = (params) => {
           id: item._id,
           name: item.l_user_id.u_fullname,
           ...userDetail,
+          status: item.l_status,
         });
       }
       return newResult;
@@ -170,6 +176,91 @@ module.exports = (params) => {
       };
     } catch (error) {
       console.log("err:_modifyLecturersResult");
+      return result;
+    }
+  }
+
+  /**
+   * ==========================
+   * put Lecturers
+   *
+   * _validateBeforeputLecturers
+   * ==========================
+   */
+  hook.addFilter(`${appPrefix}_${lecturersPrefix}_put_result`, appPrefix, _modifyLecturersPutResult, 10); // prettier-ignore
+
+  /**
+   * modify / format ulang data yang muncul di user
+   *
+   * @param {*} result
+   */
+  async function _modifyLecturersPutResult(result) {
+    try {
+      return {
+        status: "success",
+        message: "berhasil merubah data lecturers",
+        datetime: moment().unix(),
+        id: result._id,
+      };
+    } catch (error) {
+      console.log("err:_modifyLecturersGetResult", error);
+      return result;
+    }
+  }
+
+  /**
+   * ==========================
+   * Delete Lecturers
+   *
+   * _validateBeforeDeleteLecturers
+   * ==========================
+   */
+  hook.addFilter(`${appPrefix}_validate_delete_${lecturersPrefix}`, appPrefix, _validateBeforeDeleteLecturers, 10, 2); // prettier-ignore
+  hook.addFilter(`${appPrefix}_${lecturersPrefix}_delete_result`, appPrefix, _modifyLecturersDeleteResult, 10); // prettier-ignore
+
+  /**
+   * Validasi body data
+   *
+   * @param {*} resolve
+   * @param {*} query
+   * @returns
+   */
+  async function _validateBeforeDeleteLecturers(res, query) {
+    try {
+      const { lecturers_id, rps_id } = query;
+      // check is rps_id not empty
+      if (_.isNil(rps_id) || _.eq(rps_id, "")) return `rps_id required`;
+
+      // check is lecturers_id not empty
+      if (_.isNil(lecturers_id) || _.eq(lecturers_id, ""))
+        return `lecturers_id required`;
+
+      // validate type is ObjectId
+      if (!isValidObjectId(rps_id)) return "rps_id not valid";
+      if (!isValidObjectId(lecturers_id)) return "lecturers_id not valid";
+
+      return res;
+    } catch (error) {
+      _e("err: _validateBeforeDeleteLecturers", error);
+      return error.message;
+    }
+  }
+
+  /**
+   * modify / format ulang data yang muncul di user
+   *
+   * @param {*} result
+   */
+  async function _modifyLecturersDeleteResult(result) {
+    try {
+      return {
+        status: "success",
+        message: "berhasil menghapus data lecturers",
+        datetime: moment().unix(),
+        id: result._id,
+      };
+    } catch (error) {
+      console.log("err:_modifyLecturersDeleteResult", error);
       return result;
     }
   }
