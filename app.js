@@ -7,6 +7,7 @@ const moment = require("moment");
 const hooks = require("@wordpress/hooks");
 const _ = require("lodash");
 const jwt = require("jsonwebtoken");
+const CryptoJS = require("crypto-js");
 const {
   isJson,
   importFile,
@@ -27,6 +28,7 @@ global.hook = hooks.createHooks();
 global._ = _;
 global.moment = moment;
 global.jwt = jwt;
+global.CryptoJS = CryptoJS;
 
 global.appPrefix = env.PREFIX;
 global.lecturersPrefix = env.LECTURERS_PREFIX;

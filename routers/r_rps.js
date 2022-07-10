@@ -11,7 +11,6 @@ module.exports = (params) => {
    * GET
    */
   app.route(`/rps/:id`).get(async (req, res) => {
-    console.log("asd", req.params.id);
     let _getRpsById = await c_rps._getRpsById(req.params.id);
     res.json(_getRpsById);
   });
@@ -27,11 +26,7 @@ module.exports = (params) => {
   app
     .route(`/rps`)
     .get(async (req, res) => {
-      let _getRps = await c_rps._getRps({
-        skip: req.query?.skip,
-        limit: req.query?.limit,
-        sort: req.query?.sort,
-      });
+      let _getRps = await c_rps._getRps({ ...req.query });
       res.json(_getRps);
     })
     .post(async (req, res) => {

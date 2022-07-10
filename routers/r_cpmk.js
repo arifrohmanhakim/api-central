@@ -40,7 +40,7 @@ module.exports = (params) => {
     .route(`/bo/rps/:rpsId/cpmk/:cpmkId`)
     .put(async (req, res) => {
       let _putCpmk = await c_cpmk._putCpmk({
-        ...req.query,
+        ...req.body,
         rps_id: req.params.rpsId,
         cpmk_id: req.params.cpmkId,
       });

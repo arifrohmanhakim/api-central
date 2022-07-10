@@ -8,13 +8,78 @@ module.exports = (params) => {
 
   /**
    * ==========================
+   * Get Cpmk
+   *
+   * _modifyCpmkGetResult
+   * ==========================
+   */
+  hook.addFilter(`${appPrefix}_${cpmkPrefix}_query`, appPrefix, _getCpmkFilterQuery, 10); // prettier-ignore
+  hook.addFilter(`${appPrefix}_${cpmkPrefix}_get_result`, appPrefix, _modifyCpmkGetResult, 10); // prettier-ignore
+
+  /**
+   * modify query get cpmk
+   *
+   * @param {*} query
+   */
+  async function _getCpmkFilterQuery(query) {
+    try {
+      // filter by code
+      if (!_.isNil(query?.code)) {
+        query.cpmk_code = query?.code;
+        delete query.code;
+      }
+
+      // filter by status
+      if (!_.isNil(query?.status)) {
+        query.cpmk_status = query?.status;
+        delete query.status;
+      }
+
+      return query || {};
+    } catch (error) {
+      console.log("err: _getCpmkFilterQuery", error);
+      return query;
+    }
+  }
+
+  /**
+   * modify / format ulang data yang muncul di user
+   *
+   * @param {*} result
+   */
+  async function _modifyCpmkGetResult(result) {
+    try {
+      if (_.isEmpty(result?.data)) return result;
+      let newResult = [];
+      for (let index = 0; index < result?.data.length; index++) {
+        const item = result?.data[index];
+        newResult.push({
+          id: item._id,
+          code: item.cpmk_code,
+          lo_name: item.cpmk_name,
+          status: item.cpmk_status,
+        });
+      }
+      return {
+        count: result?.total,
+        datetime: moment().unix(),
+        cpmk: newResult,
+      };
+    } catch (error) {
+      console.log("err:_modifyCpmkGetResult", error);
+      return result;
+    }
+  }
+
+  /**
+   * ==========================
    * Post Cpmk
    *
    * _validateBeforePostCpmk
    * ==========================
    */
   hook.addFilter( `${appPrefix}_validate_post_${cpmkPrefix}`, appPrefix, _validateBeforePostCpmk, 10, 2 ) // prettier-ignore
-  hook.addFilter(`${appPrefix}_${cpmkPrefix}_get_result`, appPrefix, _modifyCpmkGetResult, 10); // prettier-ignore
+  hook.addFilter(`${appPrefix}_${cpmkPrefix}_post_result`, appPrefix, _modifyCpmkPostResult, 10); // prettier-ignore
 
   /**
    * Validasi body data
@@ -51,25 +116,16 @@ module.exports = (params) => {
    *
    * @param {*} result
    */
-  async function _modifyCpmkGetResult(result) {
+  async function _modifyCpmkPostResult(result) {
     try {
-      if (_.isEmpty(result?.data)) return result;
-      let newResult = [];
-      for (let index = 0; index < result?.data.length; index++) {
-        const item = result?.data[index];
-        newResult.push({
-          id: item._id,
-          code: item.cpmk_code,
-          lo_name: item.cpmk_name,
-        });
-      }
       return {
-        count: result?.total,
+        status: "success",
+        message: "berhasil menambah data cpmk",
         datetime: moment().unix(),
-        cpmk: newResult,
+        id: result._id,
       };
     } catch (error) {
-      console.log("err:_modifyCpmkGetResult", error);
+      console.log("err:_modifyCpmkPostResult", error);
       return result;
     }
   }

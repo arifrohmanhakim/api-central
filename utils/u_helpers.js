@@ -106,3 +106,41 @@ function isValidObjectId(id) {
   return false;
 }
 exports.isValidObjectId = isValidObjectId;
+
+/**
+ * encryot data
+ *
+ * @param   {[type]}  str  [str description]
+ *
+ * @return  {[type]}       [return description]
+ */
+function setEncrypt(str, key = "") {
+  try {
+    if (_.isEmpty(key)) key = env.SECRET_KEY;
+    if (_.isObject(str) || _.isArray(str)) str = JSON.stringify(str);
+    return CryptoJS.AES.encrypt(str, key).toString();
+  } catch (e) {
+    _debug(e);
+    return str;
+  }
+}
+exports.setEncrypt = setEncrypt;
+
+/**
+ * decryot data
+ *
+ * @param   {[type]}  str  [str description]
+ *
+ * @return  {[type]}       [return description]
+ */
+function getEncrypt(str, key) {
+  try {
+    let bytes = CryptoJS.AES.decrypt(str, key);
+    let text = bytes.toString(CryptoJS.enc.Utf8);
+    if (isJson(text)) text = JSON.parse(text);
+    return text;
+  } catch (e) {
+    return str;
+  }
+}
+exports.getEncrypt = getEncrypt;

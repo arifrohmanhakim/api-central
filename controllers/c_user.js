@@ -84,7 +84,7 @@ class ControllerUser {
         /**
          * add hook apply filters to modify the result
          */
-        let newResult = await hook.applyFilters(`${appPrefix}_${userPrefix}_result`, result); //prettier-ignore
+        let newResult = await hook.applyFilters(`${appPrefix}_${userPrefix}_result`, result, query); //prettier-ignore
 
         resolve(newResult);
       } catch (error) {
@@ -154,7 +154,7 @@ class ControllerUser {
         /**
          * add hook apply filters to modify the result
          */
-        let newResult = await hook.applyFilters(`${appPrefix}_${userPrefix}_login_result`, result); //prettier-ignore
+        let newResult = await hook.applyFilters(`${appPrefix}_${userPrefix}_login_result`, result, query); //prettier-ignore
 
         resolve(newResult);
       } catch (error) {
@@ -179,21 +179,13 @@ class ControllerUser {
         /**
          * add hook validate post user
          */
-        let _validate = await hook.applyFilters(
-          `${appPrefix}_validate_post_${userPrefix}`,
-          "",
-          query
-        );
+        let _validate = await hook.applyFilters(`${appPrefix}_validate_post_${userPrefix}`, "", query); //prettier-ignore
         if (!_.eq(_validate, "")) return resolve(_validate);
 
         /**
          * add hook before post user
          */
-        await hook.doAction(
-          `${appPrefix}_before_post_${userPrefix}`,
-          query,
-          resolve
-        );
+        await hook.doAction(`${appPrefix}_before_post_${userPrefix}`, query, resolve); //prettier-ignore
 
         /**
          * add data into mongodb
@@ -209,11 +201,7 @@ class ControllerUser {
         /**
          * add hook after post user
          */
-        await hook.doAction(
-          `${appPrefix}_after_post_${userPrefix}`,
-          user,
-          query
-        );
+        await hook.doAction(`${appPrefix}_after_post_${userPrefix}`, user, query); //prettier-ignore
 
         resolve(user);
       } catch (error) {

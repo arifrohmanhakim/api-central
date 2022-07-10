@@ -57,7 +57,7 @@ class ControllerRefs {
         /**
          * add hook apply filters to modify the result
          */
-        let newResult = await hook.applyFilters(`${appPrefix}_${refsPrefix}_get_result`, {total: countResult, data: result}); //prettier-ignore
+        let newResult = await hook.applyFilters(`${appPrefix}_${refsPrefix}_get_result`, {total: countResult, data: result}, newQuery); //prettier-ignore
 
         resolve(newResult);
       } catch (error) {
@@ -123,7 +123,7 @@ class ControllerRefs {
         /**
          * add hook apply filters to modify the result
          */
-        let newResult = await hook.applyFilters(`${appPrefix}_${refsPrefix}_post_result`, result); //prettier-ignore
+        let newResult = await hook.applyFilters(`${appPrefix}_${refsPrefix}_post_result`, result, query); //prettier-ignore
 
         resolve(newResult);
       } catch (error) {
@@ -195,7 +195,7 @@ class ControllerRefs {
         /**
          * add hook apply filters to modify the result
          */
-        let newResult = await hook.applyFilters(`${appPrefix}_${refsPrefix}_put_result`, result); //prettier-ignore
+        let newResult = await hook.applyFilters(`${appPrefix}_${refsPrefix}_put_result`, result, query); //prettier-ignore
 
         resolve(newResult);
       } catch (error) {
@@ -252,7 +252,7 @@ class ControllerRefs {
         /**
          * add hook apply filters to modify the result
          */
-        let newResult = await hook.applyFilters(`${appPrefix}_${refsPrefix}_delete_result`, results); //prettier-ignore
+        let newResult = await hook.applyFilters(`${appPrefix}_${refsPrefix}_delete_result`, result, querys); //prettier-ignore
 
         resolve(newResult);
       } catch (error) {

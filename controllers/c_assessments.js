@@ -110,7 +110,7 @@ class ControllerAssessments {
         /**
          * add hook apply filters to modify the result
          */
-        let newResult = await hook.applyFilters(`${appPrefix}_${assessmentsPrefix}_post_result`, result); //prettier-ignore
+        let newResult = await hook.applyFilters(`${appPrefix}_${assessmentsPrefix}_post_result`, result, query); //prettier-ignore
 
         resolve(newResult);
       } catch (error) {
@@ -168,7 +168,7 @@ class ControllerAssessments {
         /**
          * add hook apply filters to modify the result
          */
-        let newResult = await hook.applyFilters(`${appPrefix}_${assessmentsPrefix}_put_result`, result); //prettier-ignore
+        let newResult = await hook.applyFilters(`${appPrefix}_${assessmentsPrefix}_put_result`, result, query); //prettier-ignore
 
         resolve(newResult);
       } catch (error) {
@@ -227,7 +227,7 @@ class ControllerAssessments {
         /**
          * add hook apply filters to modify the result
          */
-        let newResult = await hook.applyFilters(`${appPrefix}_${assessmentsPrefix}_delete_result`, results); //prettier-ignore
+        let newResult = await hook.applyFilters(`${appPrefix}_${assessmentsPrefix}_delete_result`, result, querys); //prettier-ignore
 
         resolve(newResult);
       } catch (error) {

@@ -132,7 +132,7 @@ class ControllerLecturers {
         /**
          * add hook apply filters to modify the result
          */
-        let newResult = await hook.applyFilters(`${appPrefix}_${lecturersPrefix}_post_result`, result); //prettier-ignore
+        let newResult = await hook.applyFilters(`${appPrefix}_${lecturersPrefix}_post_result`, result, query); //prettier-ignore
 
         resolve(newResult);
       } catch (error) {
@@ -202,7 +202,7 @@ class ControllerLecturers {
         /**
          * add hook apply filters to modify the result
          */
-        let newResult = await hook.applyFilters(`${appPrefix}_${lecturersPrefix}_put_result`, result); //prettier-ignore
+        let newResult = await hook.applyFilters(`${appPrefix}_${lecturersPrefix}_put_result`, result, query); //prettier-ignore
 
         resolve(newResult);
       } catch (error) {
@@ -259,7 +259,7 @@ class ControllerLecturers {
         /**
          * add hook apply filters to modify the result
          */
-        let newResult = await hook.applyFilters(`${appPrefix}_${lecturersPrefix}_delete_result`, results); //prettier-ignore
+        let newResult = await hook.applyFilters(`${appPrefix}_${lecturersPrefix}_delete_result`, result, querys); //prettier-ignore
 
         resolve(newResult);
       } catch (error) {

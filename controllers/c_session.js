@@ -127,7 +127,7 @@ class ControllerSession {
         /**
          * add hook apply filters to modify the result
          */
-        let newResult = await hook.applyFilters(`${appPrefix}_${sessionPrefix}_post_result`, result); //prettier-ignore
+        let newResult = await hook.applyFilters(`${appPrefix}_${sessionPrefix}_post_result`, result, query); //prettier-ignore
 
         resolve(newResult);
       } catch (error) {
@@ -215,7 +215,7 @@ class ControllerSession {
         /**
          * add hook apply filters to modify the result
          */
-        let newResult = await hook.applyFilters(`${appPrefix}_${sessionPrefix}_put_result`, result); //prettier-ignore
+        let newResult = await hook.applyFilters(`${appPrefix}_${sessionPrefix}_put_result`, result, query); //prettier-ignore
 
         resolve(newResult);
       } catch (error) {
@@ -272,7 +272,7 @@ class ControllerSession {
         /**
          * add hook apply filters to modify the result
          */
-        let newResult = await hook.applyFilters(`${appPrefix}_${sessionPrefix}_delete_result`, results); //prettier-ignore
+        let newResult = await hook.applyFilters(`${appPrefix}_${sessionPrefix}_delete_result`, result, querys); //prettier-ignore
 
         resolve(newResult);
       } catch (error) {

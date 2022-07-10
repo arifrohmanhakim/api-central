@@ -114,7 +114,7 @@ class ControllerCpmk {
         /**
          * add hook apply filters to modify the result
          */
-        let newResult = await hook.applyFilters(`${appPrefix}_${cpmkPrefix}_post_result`, result); //prettier-ignore
+        let newResult = await hook.applyFilters(`${appPrefix}_${cpmkPrefix}_post_result`, result, query); //prettier-ignore
 
         resolve(newResult);
       } catch (error) {
@@ -159,6 +159,7 @@ class ControllerCpmk {
             ...(code && { cpmk_code: code }),
             ...(name && { cpmk_name: name }),
             ...(clo_ids && { cpmk_clo_ids: clo_ids }),
+            ...(status && { cpmk_status: status }),
           }
         );
 
@@ -175,7 +176,7 @@ class ControllerCpmk {
         /**
          * add hook apply filters to modify the result
          */
-        let newResult = await hook.applyFilters(`${appPrefix}_${cpmkPrefix}_put_result`, result); //prettier-ignore
+        let newResult = await hook.applyFilters(`${appPrefix}_${cpmkPrefix}_put_result`, result, query); //prettier-ignore
 
         resolve(newResult);
       } catch (error) {
@@ -232,7 +233,7 @@ class ControllerCpmk {
         /**
          * add hook apply filters to modify the result
          */
-        let newResult = await hook.applyFilters(`${appPrefix}_${cpmkPrefix}_delete_result`, results); //prettier-ignore
+        let newResult = await hook.applyFilters(`${appPrefix}_${cpmkPrefix}_delete_result`, result, querys); //prettier-ignore
 
         resolve(newResult);
       } catch (error) {

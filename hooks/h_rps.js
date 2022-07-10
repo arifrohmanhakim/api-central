@@ -204,6 +204,7 @@ module.exports = (params) => {
           rev: item.rps_rev,
           created_at: item.rps_created_at,
           editable: item.rps_editable,
+          status: item.rps_status,
         });
       }
       return {

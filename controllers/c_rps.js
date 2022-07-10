@@ -34,7 +34,7 @@ class ControllerRps {
         /**
          * add hook apply filters to modify the result
          */
-        let newResult = await hook.applyFilters(`${appPrefix}_${rpsPrefix}_detail_result`, result); //prettier-ignore
+        let newResult = await hook.applyFilters(`${appPrefix}_${rpsPrefix}_detail_result`, result, query); //prettier-ignore
 
         resolve(newResult);
         return;

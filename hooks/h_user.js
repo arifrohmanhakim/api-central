@@ -1,4 +1,4 @@
-const { generateAccessToken } = require("../utils/u_helpers");
+const { generateAccessToken, setEncrypt } = require("../utils/u_helpers");
 const ControllerUser = require("../controllers/c_user");
 
 module.exports = (params) => {
@@ -9,12 +9,12 @@ module.exports = (params) => {
    * Login User
    *
    * _validateBeforeLogin
-   * _usersFilterQuery
+   * _usersLoginFilterQuery
    * ==========================
    */
   hook.addFilter(`${appPrefix}_validate_login_${userPrefix}`, appPrefix, _validateBeforeLogin, 10, 2); // prettier-ignore
-  hook.addFilter(`${appPrefix}_${userPrefix}_login_query`, appPrefix, _usersFilterQuery, 10, 1); // prettier-ignore
-  hook.addFilter(`${appPrefix}_${userPrefix}_login_result`, appPrefix, _usersResult, 10, 1); // prettier-ignore
+  hook.addFilter(`${appPrefix}_${userPrefix}_login_query`, appPrefix, _usersLoginFilterQuery, 10, 1); // prettier-ignore
+  hook.addFilter(`${appPrefix}_${userPrefix}_login_result`, appPrefix, _usersLoginResult, 10, 1); // prettier-ignore
 
   /**
    * validate before get User by id
@@ -43,18 +43,18 @@ module.exports = (params) => {
    * @param {*} res
    * @param {*} query
    */
-  async function _usersFilterQuery(query) {
+  async function _usersLoginFilterQuery(query) {
     try {
       const { username, password } = query;
 
       query = {
-        username,
-        password,
+        u_username: username,
+        u_password: password,
       };
 
       return query;
     } catch (error) {
-      console.log("_err:_usersFilterQuery", error);
+      console.log("_err:_usersLoginFilterQuery", error);
       return query;
     }
   }
@@ -66,7 +66,7 @@ module.exports = (params) => {
    * @param {*} result
    * @returns
    */
-  async function _usersResult(result) {
+  async function _usersLoginResult(result) {
     try {
       if (_.isNil(result)) {
         return {
@@ -83,7 +83,7 @@ module.exports = (params) => {
         datetime: moment().unix(),
       };
     } catch (error) {
-      console.log("_err:_usersResult", error);
+      console.log("_err:_usersLoginResult", error);
       return result;
     }
   }
