@@ -45,11 +45,45 @@ module.exports = (params) => {
   app
     .route(`/bo/rps`)
     .get(async (req, res) => {
-      let _getRps = await c_rps._getRps({ ...req.query, user: req?.user });
+      if (_.isNil(req.user)) {
+        res.json({
+          status: "error",
+          message: "token yang anda masukan salah",
+          datetime: moment().unix(),
+        });
+      }
+      let _getRps = await c_rps._getRps({
+        ...req.query,
+        ...req.params,
+        creator: req.user._id,
+      });
       res.json(_getRps);
     })
     .post(async (req, res) => {
-      let _searchRps = await c_rps._postRps(req.body);
-      res.json(_searchRps);
+      let _postRps = await c_rps._postRps(req.body);
+      res.json(_postRps);
+    });
+
+  /**
+   * group route by bo/rps/:rpsId
+   *
+   * /bo/rps/:rpsId
+   *
+   * GET - get rps detail yang diampu
+   * PUT - update rps
+   * DELETE - delete rps
+   */
+  app
+    .route(`/bo/rps/:rpsId`)
+    .get(async (req, res) => {
+      let _getRpsById = await c_rps._getRpsById(req.params.rpsId);
+      res.json(_getRpsById);
+    })
+    .put(async (req, res) => {
+      let _putRps = await c_rps._putRps({
+        rps_id: req.params.rpsId,
+        ...req.body,
+      });
+      res.json(_putRps);
     });
 };

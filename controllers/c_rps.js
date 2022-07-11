@@ -101,7 +101,7 @@ class ControllerRps {
         /**
          * add hook apply filters to modify the result
          */
-        let newResult = await hook.applyFilters(`${appPrefix}_${rpsPrefix}_result`, {total: countResult, data: result}); //prettier-ignore
+        let newResult = await hook.applyFilters(`${appPrefix}_${rpsPrefix}_result`, {total: countResult, data: result}, newQuery); //prettier-ignore
 
         resolve(newResult);
       } catch (error) {
@@ -146,7 +146,7 @@ class ControllerRps {
         await hook.doAction(`${appPrefix}_before_post_${rpsPrefix}`, query, resolve); // prettier-ignore
 
         /**
-         * add hook modify refs params
+         * add hook modify rps params
          *
          */
         let newparams = await hook.applyFilters(`${appPrefix}_${rpsPrefix}_post_params`, {
@@ -174,6 +174,145 @@ class ControllerRps {
         resolve(rps);
       } catch (error) {
         console.log("err:_postRps", error);
+        resolve(error);
+      }
+    });
+  }
+  /**
+   * update rps
+   *
+   * @param   {[type]}  query  [query description]
+   *
+   * @return  {[type]}         [return description]
+   */
+  _putRps(query) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const {
+          rps_id,
+          validate_at,
+          code,
+          name,
+          credit,
+          semester,
+          rev,
+          editable,
+          desc,
+          materi,
+          creator,
+          validator,
+          status,
+        } = query;
+
+        console.log("query", query);
+
+        /**
+         * add hook validate put ${rpsPrefix}
+         */
+        let _validate = await hook.applyFilters(`${appPrefix}_validate_put_${rpsPrefix}`, "", query); // prettier-ignore
+        if (!_.eq(_validate, "")) return resolve(_validate);
+
+        /**
+         * add hook before put ${rpsPrefix}
+         *
+         */
+        hook.doAction(`${appPrefix}_before_put_${rpsPrefix}`, query, resolve);
+
+        let result = await m_rps.findOneAndUpdate(
+          {
+            _id: rps_id,
+          },
+          {
+            ...(validate_at && { rps_validate_at: validate_at }),
+            ...(code && { rps_code: code }),
+            ...(name && { rps_name: name }),
+            ...(credit && { rps_credit: credit }),
+            ...(semester && { rps_semester: semester }),
+            ...(rev && { rps_rev: rev }),
+            ...(editable && { rps_editable: editable }),
+            ...(desc && { rps_desc: desc }),
+            ...(materi && { rps_materi: materi }),
+            ...(creator && { rps_creator: creator }),
+            ...(validator && { rps_validator: validator }),
+            ...(status && { rps_status: status }),
+          }
+        );
+
+        /**
+         * check if mongodb return null
+         */
+        if (_.isNil(result)) return resolve(`${rpsPrefix} not found`);
+
+        /**
+         * add hook after put ${rpsPrefix}
+         */
+        hook.doAction(`${appPrefix}_after_put_${rpsPrefix}`, result, query);
+
+        /**
+         * add hook apply filters to modify the result
+         */
+        let newResult = await hook.applyFilters(`${appPrefix}_${rpsPrefix}_put_result`, result, query); //prettier-ignore
+
+        resolve(newResult);
+      } catch (error) {
+        console.log("err:_putRps", error);
+        resolve(error);
+      }
+    });
+  }
+
+  /**
+   * delete rps by rps id
+   *
+   * @param   {[type]}  query  [query description]
+   *
+   * @return  {[type]}          [return description]
+   */
+  _deleteRps(query) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let results = "";
+
+        /**
+         * add hook validate delete rps
+         */
+        let _validate = await hook.applyFilters(`${appPrefix}_validate_delete_${rpsPrefix}`, "", query); //prettier-ignore
+        if (!_.eq(_validate, "")) return resolve(_validate);
+
+        /**
+         * add hook before delete rps
+         *
+         */
+        await hook.doAction(`${appPrefix}_before_delete_${rpsPrefix}`, query); //prettier-ignore
+
+        /**
+         * Delete permanent from mongodb if
+         * have params force == "true"
+         * else only change rps status to deleted
+         */
+        if (!_.isNil(query.force) && _.eq(query.force, "true")) {
+          results = await m_rps.deleteOne({ _id: query.rps_id });
+        } else {
+          results = await m_rps.findOneAndUpdate(
+            { _id: query.rps_id },
+            { rps_status: "deleted" }
+          );
+        }
+
+        /**
+         * add hook after delete rps
+         *
+         */
+        await hook.doAction(`${appPrefix}_after_delete_${rpsPrefix}`, results, query); //prettier-ignore
+
+        /**
+         * add hook apply filters to modify the result
+         */
+        let newResult = await hook.applyFilters(`${appPrefix}_${rpsPrefix}_delete_result`, result, querys); //prettier-ignore
+
+        resolve(newResult);
+      } catch (error) {
+        _e("err:_deleteRps", error);
         resolve(error);
       }
     });

@@ -289,7 +289,7 @@ module.exports = (params) => {
           // assessments
           for (
             let indexAssessments = 0;
-            indexAssessments < plan.refs.length;
+            indexAssessments < plan.assessments.length;
             indexAssessments++
           ) {
             const assessments = plan.assessments[indexAssessments];
@@ -308,7 +308,7 @@ module.exports = (params) => {
       }
       return newResult;
     } catch (error) {
-      console.log("err:_modifyRpsDetailResultCoursePlanss", error);
+      console.log("err:_modifyRpsDetailResultCoursePlans", error);
       return result;
     }
   }
@@ -320,8 +320,32 @@ module.exports = (params) => {
    * _getRpsFilterQuery
    * ==========================
    */
+  hook.addFilter(`${appPrefix}_validate_get_${rpsPrefix}`, appPrefix, _validateBeforeGetRps, 10, 2); // prettier-ignore
   hook.addFilter(`${appPrefix}_${rpsPrefix}_query`, appPrefix, _getRpsFilterQuery, 10); // prettier-ignore
-  hook.addFilter(`${appPrefix}_${rpsPrefix}_result`, appPrefix, _modifyRpsResult, 10); // prettier-ignore
+  hook.addFilter(`${appPrefix}_${rpsPrefix}_result`, appPrefix, _modifyRpsResult, 10, 2); // prettier-ignore
+
+  /**
+   * Validasi body data
+   *
+   * @param {*} res
+   * @param {*} query
+   * @returns
+   */
+  async function _validateBeforeGetRps(res, query) {
+    try {
+      // validate creator is ObjectId
+      if (!_.isNil(query.creator) && !isValidObjectId(query.creator))
+        return "creator not valid";
+      // validate validator is ObjectId
+      if (!_.isNil(query.validator) && !isValidObjectId(query.validator))
+        return "validator not valid";
+
+      return res;
+    } catch (error) {
+      console.log("err: _validateBeforeGetRps", error);
+      return res;
+    }
+  }
 
   /**
    * modify query get rps
@@ -401,6 +425,18 @@ module.exports = (params) => {
         delete query.materi;
       }
 
+      // filter by creator
+      if (!_.isNil(query?.creator)) {
+        query.rps_creator = query?.creator;
+        delete query.creator;
+      }
+
+      // filter by validator
+      if (!_.isNil(query?.validator)) {
+        query.rps_validator = query?.validator;
+        delete query.validator;
+      }
+
       return query || {};
     } catch (error) {
       console.log("err: _getRpsFilterQuery", error);
@@ -412,10 +448,12 @@ module.exports = (params) => {
    * modify / format ulang data yang muncul di user
    *
    * @param {*} result
+   * @param {*} query
    */
-  async function _modifyRpsResult(result) {
+  async function _modifyRpsResult(result, query) {
     try {
       if (_.isEmpty(result?.data)) return result;
+      if (!_.isNil(query?.raw) && query?.raw) return result;
       let newResult = [];
       for (let index = 0; index < result?.data.length; index++) {
         const item = result?.data[index];
@@ -522,6 +560,34 @@ module.exports = (params) => {
     } catch (error) {
       console.log("err: _modifyPostParams", error);
       return params;
+    }
+  }
+
+  /**
+   * ==========================
+   * put Rps
+   *
+   * _validateBeforeputRps
+   * ==========================
+   */
+  hook.addFilter(`${appPrefix}_${rpsPrefix}_put_result`, appPrefix, _modifyRpsPutResult, 10); // prettier-ignore
+
+  /**
+   * modify / format ulang data yang muncul di user
+   *
+   * @param {*} result
+   */
+  async function _modifyRpsPutResult(result) {
+    try {
+      return {
+        status: "success",
+        message: "berhasil merubah data rps",
+        datetime: moment().unix(),
+        id: result._id,
+      };
+    } catch (error) {
+      console.log("err:_modifyRpsGetResult", error);
+      return result;
     }
   }
 };
