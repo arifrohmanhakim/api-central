@@ -6,6 +6,46 @@ class ControllerMaster {
   }
 
   /**
+   * Get master By master Id
+   *
+   * @param   {[type]}  masterId  [masterId description]
+   *
+   * @return  {[type]}           [return description]
+   */
+  _getMasterById(masterId) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        /**
+         * add hook validate get detail master
+         */
+        let _validate = await hook.applyFilters(`${appPrefix}_validate_get_detail_${masterPrefix}`, "", masterId); //prettier-ignore
+        if (!_.eq(_validate, "")) return resolve(_validate);
+
+        /**
+         * add hook before get detail master
+         */
+        hook.doAction(`${appPrefix}_before_get_detail_${masterPrefix}`, masterId, resolve); //prettier-ignore
+
+        /**
+         * get mongodb data by id
+         */
+        const result = await m_master.findById(masterId);
+
+        /**
+         * add hook apply filters to modify the result
+         */
+        let newResult = await hook.applyFilters(`${appPrefix}_${masterPrefix}_detail_result`, result); //prettier-ignore
+
+        resolve(newResult);
+        return;
+      } catch (error) {
+        console.log("err:_getMasterById", error);
+        reject(error.message);
+      }
+    });
+  }
+
+  /**
    * get all master by filter
    *
    * @param   {[type]}  query  [query description]

@@ -4,6 +4,7 @@ const ControllerRefs = require("../controllers/c_refs");
 const ControllerCpmk = require("../controllers/c_cpmk");
 const ControllerAssessments = require("../controllers/c_assessments");
 const ControllerUser = require("../controllers/c_user");
+const ControllerMaster = require("../controllers/c_master");
 
 const { isValidObjectId } = require("../utils/u_helpers");
 
@@ -14,6 +15,7 @@ module.exports = (params) => {
   const c_assessments = new ControllerAssessments(params);
   const c_user = new ControllerUser(params);
   const c_cpmk = new ControllerCpmk(params);
+  const c_master = new ControllerMaster(params);
 
   /**
    * ==========================
@@ -27,7 +29,7 @@ module.exports = (params) => {
   hook.addFilter(`${appPrefix}_${rpsPrefix}_detail_result`, appPrefix, _modifyRpsDetailResultCourseCreatorValidator, 20); // prettier-ignore
   hook.addFilter(`${appPrefix}_${rpsPrefix}_detail_result`, appPrefix, _modifyRpsDetailResultCourseCPMK, 30); // prettier-ignore
   hook.addFilter(`${appPrefix}_${rpsPrefix}_detail_result`, appPrefix, _modifyRpsDetailResultCourseReferences, 40); // prettier-ignore
-  // hook.addFilter(`${appPrefix}_${rpsPrefix}_detail_result`, appPrefix, _modifyRpsDetailResultCourseAssessment, 40); // prettier-ignore
+  hook.addFilter(`${appPrefix}_${rpsPrefix}_detail_result`, appPrefix, _modifyRpsDetailResultCourseAssessment, 50); // prettier-ignore
 
   /**
    * validate resId
@@ -146,12 +148,41 @@ module.exports = (params) => {
       const courseLo = await c_cpmk._getCpmk({
         rps_id: result?.course_id.toString(),
         status: "active",
+        raw: true,
       });
-      if (!_.isEmpty(courseLo.cpmk)) {
-        result.course_lo = courseLo.cpmk;
+      let curriculum_lo = [];
+      result.curriculum_lo = [];
+      if (!_.isEmpty(courseLo.data)) {
+        result.course_lo = [];
+        for (let index = 0; index < courseLo.data.length; index++) {
+          const itemLo = courseLo.data[index];
+          result.course_lo = [
+            ...result.course_lo,
+            {
+              id: itemLo._id,
+              code: itemLo.cpmk_code,
+              lo_name: itemLo.cpmk_name,
+            },
+          ];
+          curriculum_lo = [...curriculum_lo, ...itemLo.cpmk_clo_ids];
+        }
       } else {
         result.course_lo = [];
       }
+      curriculum_lo = _.uniq(curriculum_lo);
+      // get master cp by id
+      for (let index = 0; index < curriculum_lo.length; index++) {
+        const cItem = curriculum_lo[index];
+        const getMasterCurriculum = await c_master._getMasterById(cItem);
+        if (!_.isNil(getMasterCurriculum)) {
+          result.curriculum_lo.push({
+            id: getMasterCurriculum._id,
+            code: getMasterCurriculum.code,
+            lo_name: getMasterCurriculum.master_title,
+          });
+        }
+      }
+
       return result;
     } catch (error) {
       console.log("err: _modifyRpsDetailResultCourseCPMK", error);
@@ -174,8 +205,8 @@ module.exports = (params) => {
         rps_id: newResult?.course_id.toString(),
         status: "active",
       });
-      if (!_.isEmpty(referencesCreator.references)) {
-        newResult.course_references = referencesCreator.references;
+      if (!_.isEmpty(referencesCreator.refs)) {
+        newResult.course_references = referencesCreator.refs;
       } else {
         newResult.course_references = [];
       }
@@ -202,8 +233,9 @@ module.exports = (params) => {
         rps_id: newResult?.course_id.toString(),
         status: "active",
       });
-      if (!_.isEmpty(assessmentsCreator.data)) {
-        newResult.course_assessments = assessmentsCreator.data;
+      console.log("assessmentsCreator", assessmentsCreator);
+      if (!_.isEmpty(assessmentsCreator.assessments)) {
+        newResult.course_assessments = assessmentsCreator.assessments;
       }
       return newResult;
     } catch (error) {

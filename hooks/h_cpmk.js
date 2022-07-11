@@ -14,7 +14,7 @@ module.exports = (params) => {
    * ==========================
    */
   hook.addFilter(`${appPrefix}_${cpmkPrefix}_query`, appPrefix, _getCpmkFilterQuery, 10); // prettier-ignore
-  hook.addFilter(`${appPrefix}_${cpmkPrefix}_get_result`, appPrefix, _modifyCpmkGetResult, 10); // prettier-ignore
+  hook.addFilter(`${appPrefix}_${cpmkPrefix}_get_result`, appPrefix, _modifyCpmkGetResult, 10, 2); // prettier-ignore
 
   /**
    * modify query get cpmk
@@ -46,10 +46,12 @@ module.exports = (params) => {
    * modify / format ulang data yang muncul di user
    *
    * @param {*} result
+   * @param {*} query
    */
-  async function _modifyCpmkGetResult(result) {
+  async function _modifyCpmkGetResult(result, query) {
     try {
       if (_.isEmpty(result?.data)) return result;
+      if (!_.isNil(query?.raw) && query?.raw) return result;
       let newResult = [];
       for (let index = 0; index < result?.data.length; index++) {
         const item = result?.data[index];

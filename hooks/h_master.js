@@ -8,6 +8,40 @@ module.exports = (params) => {
 
   /**
    * ==========================
+   * Get master By id
+   * ==========================
+   */
+  hook.addFilter(`${appPrefix}_${masterPrefix}_detail_result`, appPrefix, _modifyMasterDetailGetResult, 10); // prettier-ignore
+
+  /**
+   * modify / format ulang data yang muncul di user
+   *
+   * @param {*} result
+   */
+  async function _modifyMasterDetailGetResult(result) {
+    try {
+      if (_.isNil(result)) return result;
+
+      // get master meta
+      const masterMeta = await c_master._getMasterMeta({
+        master_id: result._id,
+      });
+
+      if (!_.isNil(masterMeta) && !_.isEmpty(masterMeta)) {
+        for (let index = 0; index < masterMeta.length; index++) {
+          const meta = masterMeta[index];
+          result[meta.mm_key] = meta.mm_value;
+        }
+      }
+      return result;
+    } catch (error) {
+      console.log("err:_modifyMasterDetailGetResult", error);
+      return result;
+    }
+  }
+
+  /**
+   * ==========================
    * Get master
    *
    * _getmasterFilterQuery
@@ -23,6 +57,11 @@ module.exports = (params) => {
    */
   async function _getMasterFilterQuery(query) {
     try {
+      // filter by status
+      if (!_.isNil(query?.id)) {
+        query._id = query?.id;
+        delete query.id;
+      }
       // filter by status
       if (!_.isNil(query?.status)) {
         query.master_status = query?.status;
