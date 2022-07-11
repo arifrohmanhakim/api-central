@@ -86,7 +86,9 @@ class ControllerRps {
          */
         const result = await m_rps
           .find(newQuery, null, { skip, limit, sort })
-          .lean();
+          .lean()
+          .populate({ path: "rps_creator" })
+          .populate({ path: "rps_validator" });
 
         /**
          * add hook after get rps
@@ -116,7 +118,17 @@ class ControllerRps {
   _postRps(query) {
     return new Promise(async (resolve, reject) => {
       try {
-        const { code, name, credit, semester, rev, status, editable } = query;
+        const {
+          code,
+          name,
+          credit,
+          semester,
+          rev,
+          status,
+          editable,
+          creator,
+          validator,
+        } = query;
 
         /**
          * add hook validate post rps
@@ -131,9 +143,10 @@ class ControllerRps {
         await hook.doAction(`${appPrefix}_before_post_${rpsPrefix}`, query, resolve); // prettier-ignore
 
         /**
-         * add data into mongodb
+         * add hook modify refs params
+         *
          */
-        let rps = await m_rps.create({
+        let newparams = await hook.applyFilters(`${appPrefix}_${rpsPrefix}_post_params`, {
           rps_code: code || "",
           rps_name: name || "",
           rps_credit: credit || 0,
@@ -141,7 +154,13 @@ class ControllerRps {
           rps_rev: rev || 0,
           rps_editable: editable || false,
           rps_status: status || "active",
-        });
+          rps_creator: creator || "",
+        }, query); //prettier-ignore
+
+        /**
+         * add data into mongodb
+         */
+        let rps = await m_rps.create(newparams);
 
         /**
          * add hook after post rps

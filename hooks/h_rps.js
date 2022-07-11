@@ -1,11 +1,17 @@
 const ControllerRps = require("../controllers/c_rps");
 const ControllerLectures = require("../controllers/c_lecturers");
 const ControllerRefs = require("../controllers/c_refs");
+const ControllerAssessments = require("../controllers/c_assessments");
+const ControllerUser = require("../controllers/c_user");
+
+const { isValidObjectId } = require("../utils/u_helpers");
 
 module.exports = (params) => {
   const c_rps = new ControllerRps(params);
   const c_lecturers = new ControllerLectures(params);
   const c_refs = new ControllerRefs(params);
+  const c_assessments = new ControllerAssessments(params);
+  const c_user = new ControllerUser(params);
 
   /**
    * ==========================
@@ -15,9 +21,9 @@ module.exports = (params) => {
    * ==========================
    */
   hook.addFilter(`${appPrefix}_before_get_detail_${rpsPrefix}`, appPrefix, _validateDetailRps, 10, 2); // prettier-ignore
-  hook.addFilter(`${appPrefix}_${rpsPrefix}_detail_result`, appPrefix, _modifyRpsDetailResult, 10); // prettier-ignore
-  hook.addFilter(`${appPrefix}_${rpsPrefix}_detail_result`, appPrefix, _modifyRpsDetailResultCourseCreator, 20); // prettier-ignore
-  hook.addFilter(`${appPrefix}_${rpsPrefix}_detail_result`, appPrefix, _modifyRpsDetailResultCourseReferences, 30); // prettier-ignore
+  // hook.addFilter(`${appPrefix}_${rpsPrefix}_detail_result`, appPrefix, _modifyRpsDetailResult, 10); // prettier-ignore
+  // hook.addFilter(`${appPrefix}_${rpsPrefix}_detail_result`, appPrefix, _modifyRpsDetailResultCourseReferences, 30); // prettier-ignore
+  // hook.addFilter(`${appPrefix}_${rpsPrefix}_detail_result`, appPrefix, _modifyRpsDetailResultCourseAssessment, 40); // prettier-ignore
 
   /**
    * validate resId
@@ -56,37 +62,34 @@ module.exports = (params) => {
         course_created_at: result?.rps_created_at,
       };
 
-      return newResult;
-    } catch (error) {
-      return result;
-    }
-  }
-
-  /**
-   * modify / format ulang data yang muncul di user
-   * add course creator
-   *
-   * @param {*} result
-   */
-  async function _modifyRpsDetailResultCourseCreator(result) {
-    try {
-      let newResult = await result;
-      if (_.isNil(newResult) || _.isEmpty(newResult)) return newResult;
-
-      // get course creator
-      const lectureCreator = await c_lecturers._getLecturers({
-        rps_id: newResult?.course_id.toString(),
-        status: "active",
-      });
-
-      if (!_.isEmpty(lectureCreator)) {
-        const item = _.first(lectureCreator);
+      // add creator
+      if (!_.isNil(result?.rps_creator)) {
         newResult.course_creator = {
-          creator_id: item.id,
-          creator_name: item.name,
-          creator_regno: item.regno,
+          id: result?.rps_creator?._id,
+          name: result?.rps_creator?.u_fullname,
+        };
+
+        // get user meta
+        const creatorMeta = await c_user._getUserMeta({
+          u_id: result?.rps_creator?._id,
+          um_key: "regno",
+        });
+        if (!_.isEmpty(creatorMeta)) {
+          newResult.course_creator = {
+            ...newResult.course_creator,
+            [creatorMeta[0].um_key]: creatorMeta[0].um_value,
+          };
+        }
+      }
+
+      // add validator
+      if (!_.isNil(result?.rps_validator)) {
+        newResult.course_validator = {
+          id: result?.rps_validator?._id,
+          name: result?.rps_validator?.u_fullname,
         };
       }
+
       return newResult;
     } catch (error) {
       return result;
@@ -104,17 +107,43 @@ module.exports = (params) => {
       let newResult = await result;
       if (_.isNil(newResult) || _.isEmpty(newResult)) return newResult;
 
-      // get course refs
+      // get course references
       const referencesCreator = await c_refs._getRefs({
         rps_id: newResult?.course_id.toString(),
         status: "active",
       });
-      if (!_.isEmpty(referencesCreator.refs)) {
-        newResult.course_references = referencesCreator.refs;
+      if (!_.isEmpty(referencesCreator.references)) {
+        newResult.course_references = referencesCreator.references;
       }
       return newResult;
     } catch (error) {
       console.log("err:_modifyRpsDetailResultCourseReferences", error);
+      return result;
+    }
+  }
+
+  /**
+   * add assessments
+   * add course suara
+   *
+   * @param {*} result
+   */
+  async function _modifyRpsDetailResultCourseAssessment(result) {
+    try {
+      let newResult = await result;
+      if (_.isNil(newResult) || _.isEmpty(newResult)) return newResult;
+
+      // get course assessments
+      const assessmentsCreator = await c_assessments._getAssessments({
+        rps_id: newResult?.course_id.toString(),
+        status: "active",
+      });
+      if (!_.isEmpty(assessmentsCreator.data)) {
+        newResult.course_assessments = assessmentsCreator.data;
+      }
+      return newResult;
+    } catch (error) {
+      console.log("err:_modifyRpsDetailResultCourseAssessments", error);
       return result;
     }
   }
@@ -225,7 +254,7 @@ module.exports = (params) => {
       let newResult = [];
       for (let index = 0; index < result?.data.length; index++) {
         const item = result?.data[index];
-        newResult.push({
+        let params = {
           id: item._id,
           code: item.rps_code,
           name: item.rps_name,
@@ -235,7 +264,48 @@ module.exports = (params) => {
           created_at: item.rps_created_at,
           editable: item.rps_editable,
           status: item.rps_status,
-        });
+        };
+
+        // add creator
+        if (!_.isNil(item?.rps_creator)) {
+          params.creator = {
+            id: item?.rps_creator?._id,
+            name: item?.rps_creator?.u_fullname,
+          };
+
+          // get regno from user meta
+          const creatorMeta = await c_user._getUserMeta({
+            u_id: item?.rps_creator?._id,
+            um_key: "regno",
+          });
+          if (!_.isEmpty(creatorMeta)) {
+            params.creator = {
+              ...params.creator,
+              [creatorMeta[0].um_key]: creatorMeta[0].um_value,
+            };
+          }
+        }
+
+        // add validator
+        if (!_.isNil(item?.rps_validator)) {
+          params.validator = {
+            id: item?.rps_validator?._id,
+            name: item?.rps_validator?.u_fullname,
+          };
+
+          // get regno from user meta
+          const validatorMeta = await c_user._getUserMeta({
+            u_id: item?.rps_validator?._id,
+            um_key: "regno",
+          });
+          if (!_.isEmpty(validatorMeta)) {
+            params.validator = {
+              ...params.validator,
+              [validatorMeta[0].um_key]: validatorMeta[0].um_value,
+            };
+          }
+        }
+        newResult.push(params);
       }
       return {
         count: result?.total,
@@ -243,6 +313,7 @@ module.exports = (params) => {
         rps: newResult,
       };
     } catch (error) {
+      console.log("err: _modifyRpsResult", error);
       return result;
     }
   }
@@ -256,6 +327,7 @@ module.exports = (params) => {
    * ==========================
    */
   hook.addFilter( `${appPrefix}_validate_post_${rpsPrefix}`, appPrefix, _validateBeforePostRps, 10, 2 ) // prettier-ignore
+  hook.addFilter( `${appPrefix}_${rpsPrefix}_post_params`, appPrefix, _modifyPostParams, 10, 2 ) // prettier-ignore
   hook.addFilter( `${appPrefix}_validate_post_${rpsPrefix}`, appPrefix, _validateRpsExists, 20, 2 ) // prettier-ignore
 
   /**
@@ -266,13 +338,27 @@ module.exports = (params) => {
    * @returns
    */
   async function _validateBeforePostRps(res, query) {
-    const { code, name, credit, semester, rev } = query;
+    const { code, name, credit, semester, rev, creator, validator } = query;
 
     if (_.isNil(code) || _.eq(code, "")) return `code required`;
     if (_.isNil(name) || _.eq(name, "")) return `name required`;
     if (_.isNil(credit) || _.eq(credit, "")) return `credit required`;
     if (_.isNil(semester) || _.eq(semester, "")) return `semester required`;
     if (_.isNil(rev) || _.eq(rev, "")) return `rev required`;
+    if (_.isNil(creator) || _.eq(creator, "")) return `creator required`;
+
+    if (!isValidObjectId(creator)) return "creator not valid";
+
+    // validate is creator exist
+    const isUserExist = await c_user._getUserById(creator);
+    if (_.isNil(isUserExist)) return "User Creator tidak ditemukan";
+
+    if (!_.isNil(validator) && !isValidObjectId(validator)) {
+      // validate is validator exist
+      const isUserExist = await c_user._getUserById(validator);
+      if (_.isNil(isUserExist)) return "User Validator tidak ditemukan";
+      return "validator not valid";
+    }
     return res;
   }
 
@@ -287,12 +373,30 @@ module.exports = (params) => {
     try {
       const { code } = query;
       const isExist = await c_rps._getRps({ rps_code: code });
-      if (!_.isEmpty(isExist))
+      if (!_.isEmpty(isExist.data))
         return `code already exists, please use other code`;
       return res;
     } catch (error) {
       console.log("err:_validateRpsExists", error);
       return res;
+    }
+  }
+
+  /**
+   * modify params before post
+   *
+   * @param {*} params
+   * @param {*} query
+   */
+  async function _modifyPostParams(params, query) {
+    try {
+      if (!_.isNil(query?.validator) && !_.eq(query?.validator, "")) {
+        params.rps_validator = query?.validator || "";
+      }
+      return params;
+    } catch (error) {
+      console.log("err: _modifyPostParams", error);
+      return params;
     }
   }
 };

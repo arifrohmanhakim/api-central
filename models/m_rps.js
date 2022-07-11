@@ -10,6 +10,7 @@ const Schema = mongoose.Schema;
 const rpsSchema = Schema(
   {
     rps_created_at: Number,
+    rps_date_updated: Number,
     rps_code: String,
     rps_name: String,
     rps_credit: Number,
@@ -19,11 +20,14 @@ const rpsSchema = Schema(
     rps_status: String,
     rps_desc: String,
     rps_materi: String,
+    rps_creator: { type: Schema.Types.ObjectId, required: true, ref: "user" },
+    rps_validator: { type: Schema.Types.ObjectId, ref: "user" },
   },
   {
     versionKey: false,
     timestamps: {
       createdAt: "rps_created_at",
+      updatedAt: "rps_date_updated",
       currentTime: () => moment().unix(),
     },
   }
@@ -37,6 +41,8 @@ const rpsSchema = Schema(
   rps_status: 1,
   rps_desc: 1,
   rps_materi: 1,
+  rps_creator: 1,
+  rps_validator: 1,
 });
 
 module.exports = mongoose.model("rps", rpsSchema);
