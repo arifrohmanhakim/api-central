@@ -29,7 +29,10 @@ class ControllerRps {
         /**
          * get mongodb data by id
          */
-        const result = await m_rps.findById(rpsId);
+        const result = await m_rps
+          .findById(rpsId)
+          .populate({ path: "rps_creator" })
+          .populate({ path: "rps_validator" });
 
         /**
          * add hook apply filters to modify the result

@@ -38,6 +38,7 @@ global.cpmkPrefix = env.CPMK_PREFIX;
 global.refsPrefix = env.REFS_PREFIX;
 global.assessmentsPrefix = env.ASSESSMENTS_PREFIX;
 global.sessionPrefix = env.SESSION_PREFIX;
+global.masterPrefix = env.MASTER_PREFIX;
 
 // setting middleware
 app.use(bodyParser.urlencoded({ extended: false }));

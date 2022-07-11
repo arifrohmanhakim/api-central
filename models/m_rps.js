@@ -11,6 +11,7 @@ const rpsSchema = Schema(
   {
     rps_created_at: Number,
     rps_date_updated: Number,
+    rps_validated_at: Number,
     rps_code: String,
     rps_name: String,
     rps_credit: Number,

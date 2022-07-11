@@ -21,8 +21,9 @@ module.exports = (params) => {
    * ==========================
    */
   hook.addFilter(`${appPrefix}_before_get_detail_${rpsPrefix}`, appPrefix, _validateDetailRps, 10, 2); // prettier-ignore
-  // hook.addFilter(`${appPrefix}_${rpsPrefix}_detail_result`, appPrefix, _modifyRpsDetailResult, 10); // prettier-ignore
-  // hook.addFilter(`${appPrefix}_${rpsPrefix}_detail_result`, appPrefix, _modifyRpsDetailResultCourseReferences, 30); // prettier-ignore
+  hook.addFilter(`${appPrefix}_${rpsPrefix}_detail_result`, appPrefix, _modifyRpsDetailResult, 10); // prettier-ignore
+  hook.addFilter(`${appPrefix}_${rpsPrefix}_detail_result`, appPrefix, _modifyRpsDetailResultCourseCreatorValidator, 20); // prettier-ignore
+  hook.addFilter(`${appPrefix}_${rpsPrefix}_detail_result`, appPrefix, _modifyRpsDetailResultCourseReferences, 30); // prettier-ignore
   // hook.addFilter(`${appPrefix}_${rpsPrefix}_detail_result`, appPrefix, _modifyRpsDetailResultCourseAssessment, 40); // prettier-ignore
 
   /**
@@ -60,39 +61,71 @@ module.exports = (params) => {
         course_semester: result?.rps_semester,
         course_material: result?.rps_materi,
         course_created_at: result?.rps_created_at,
+        course_validated_at: result?.rps_validated_at,
+        course_creator: result?.rps_creator,
+        course_validator: result?.rps_validator,
       };
 
+      return newResult;
+    } catch (error) {
+      return result;
+    }
+  }
+
+  /**
+   * add creator and validator
+   * add course creator and validator
+   *
+   * @param {*} result
+   */
+  async function _modifyRpsDetailResultCourseCreatorValidator(result) {
+    try {
+      result = await result;
+      if (_.isNil(result) || _.isEmpty(result)) return result;
+
+      let _result = _.cloneDeep(result);
       // add creator
-      if (!_.isNil(result?.rps_creator)) {
-        newResult.course_creator = {
-          id: result?.rps_creator?._id,
-          name: result?.rps_creator?.u_fullname,
+      if (!_.isNil(result?.course_creator)) {
+        result.course_creator = {
+          creator_id: _result?.course_creator?._id,
+          creator_name: _result?.course_creator?.u_fullname,
         };
 
         // get user meta
         const creatorMeta = await c_user._getUserMeta({
-          u_id: result?.rps_creator?._id,
+          u_id: _result?.course_creator?._id,
           um_key: "regno",
         });
         if (!_.isEmpty(creatorMeta)) {
-          newResult.course_creator = {
-            ...newResult.course_creator,
-            [creatorMeta[0].um_key]: creatorMeta[0].um_value,
+          result.course_creator = {
+            ...result.course_creator,
+            creator_regno: creatorMeta[0].um_value,
           };
         }
       }
 
       // add validator
-      if (!_.isNil(result?.rps_validator)) {
-        newResult.course_validator = {
-          id: result?.rps_validator?._id,
-          name: result?.rps_validator?.u_fullname,
+      if (!_.isNil(_result?.course_validator)) {
+        result.course_validator = {
+          validator_id: _result?.course_validator?._id,
+          validator_name: _result?.course_validator?.u_fullname,
         };
+        // get user meta
+        const validatorMeta = await c_user._getUserMeta({
+          u_id: _result?.course_validator?._id,
+          um_key: "regno",
+        });
+        if (!_.isEmpty(validatorMeta)) {
+          result.course_validator = {
+            ...result.course_validator,
+            validator_regno: validatorMeta[0].um_value,
+          };
+        }
       }
 
-      return newResult;
-    } catch (error) {
       return result;
+    } catch (error) {
+      console.log("err: _modifyRpsDetailResultCourseCreatorValidator", error);
     }
   }
 
@@ -112,8 +145,11 @@ module.exports = (params) => {
         rps_id: newResult?.course_id.toString(),
         status: "active",
       });
+      console.log("referencesCreator", referencesCreator);
       if (!_.isEmpty(referencesCreator.references)) {
         newResult.course_references = referencesCreator.references;
+      } else {
+        newResult.course_references = [];
       }
       return newResult;
     } catch (error) {
@@ -265,46 +301,6 @@ module.exports = (params) => {
           editable: item.rps_editable,
           status: item.rps_status,
         };
-
-        // add creator
-        if (!_.isNil(item?.rps_creator)) {
-          params.creator = {
-            id: item?.rps_creator?._id,
-            name: item?.rps_creator?.u_fullname,
-          };
-
-          // get regno from user meta
-          const creatorMeta = await c_user._getUserMeta({
-            u_id: item?.rps_creator?._id,
-            um_key: "regno",
-          });
-          if (!_.isEmpty(creatorMeta)) {
-            params.creator = {
-              ...params.creator,
-              [creatorMeta[0].um_key]: creatorMeta[0].um_value,
-            };
-          }
-        }
-
-        // add validator
-        if (!_.isNil(item?.rps_validator)) {
-          params.validator = {
-            id: item?.rps_validator?._id,
-            name: item?.rps_validator?.u_fullname,
-          };
-
-          // get regno from user meta
-          const validatorMeta = await c_user._getUserMeta({
-            u_id: item?.rps_validator?._id,
-            um_key: "regno",
-          });
-          if (!_.isEmpty(validatorMeta)) {
-            params.validator = {
-              ...params.validator,
-              [validatorMeta[0].um_key]: validatorMeta[0].um_value,
-            };
-          }
-        }
         newResult.push(params);
       }
       return {
