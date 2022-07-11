@@ -37,7 +37,6 @@ module.exports = (params) => {
       if (!isValidObjectId(rps_id)) return "rps_id not valid";
       if (!_.isNil(lecturer_id) && !isValidObjectId(lecturer_id))
         return "lecturer_id not valid";
-
       return res;
     } catch (error) {
       console.log("err: _validateGetLecturers", error);

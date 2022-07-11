@@ -29,6 +29,7 @@ module.exports = (params) => {
   hook.addFilter(`${appPrefix}_before_get_detail_${rpsPrefix}`, appPrefix, _validateDetailRps, 10, 2); // prettier-ignore
   hook.addFilter(`${appPrefix}_${rpsPrefix}_detail_result`, appPrefix, _modifyRpsDetailResult, 10); // prettier-ignore
   hook.addFilter(`${appPrefix}_${rpsPrefix}_detail_result`, appPrefix, _modifyRpsDetailResultCourseCreatorValidator, 20); // prettier-ignore
+  hook.addFilter(`${appPrefix}_${rpsPrefix}_detail_result`, appPrefix, _modifyRpsDetailResultCourseLecturer, 25); // prettier-ignore
   hook.addFilter(`${appPrefix}_${rpsPrefix}_detail_result`, appPrefix, _modifyRpsDetailResultCourseCPMK, 30); // prettier-ignore
   hook.addFilter(`${appPrefix}_${rpsPrefix}_detail_result`, appPrefix, _modifyRpsDetailResultCourseReferences, 40); // prettier-ignore
   hook.addFilter(`${appPrefix}_${rpsPrefix}_detail_result`, appPrefix, _modifyRpsDetailResultCourseAssessment, 50); // prettier-ignore
@@ -68,11 +69,11 @@ module.exports = (params) => {
         course_rev: result?.rps_rev,
         course_semester: result?.rps_semester,
         course_material: result?.rps_materi,
+        course_status: result?.rps_status,
         course_created_at: result?.rps_created_at,
         course_validated_at: result?.rps_validated_at,
         course_creator: result?.rps_creator,
         course_validator: result?.rps_validator,
-        course_status: result?.rps_status,
       };
 
       return newResult;
@@ -135,6 +136,34 @@ module.exports = (params) => {
       return result;
     } catch (error) {
       console.log("err: _modifyRpsDetailResultCourseCreatorValidator", error);
+    }
+  }
+
+  /**
+   * add lecturer
+   * add course lecturer
+   *
+   * @param {*} result
+   */
+  async function _modifyRpsDetailResultCourseLecturer(result) {
+    try {
+      result = await result;
+      if (_.isNil(result) || _.isEmpty(result)) return result;
+
+      let _result = _.cloneDeep(result);
+      result.course_lecturers = [];
+
+      const lecturers = await c_lecturers._getLecturers({
+        rps_id: _result.course_id.toString(),
+      });
+
+      if (!_.isEmpty(lecturers)) {
+        result.course_lecturers = lecturers;
+      }
+
+      return result;
+    } catch (error) {
+      console.log("err: _modifyRpsDetailResultCourseLecturer", error);
     }
   }
 

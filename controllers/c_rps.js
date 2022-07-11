@@ -204,8 +204,6 @@ class ControllerRps {
           status,
         } = query;
 
-        console.log("query", query);
-
         /**
          * add hook validate put ${rpsPrefix}
          */
