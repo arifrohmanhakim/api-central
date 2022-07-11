@@ -97,7 +97,7 @@ class ControllerAssessments {
         /**
          * add hook apply filters to modify the result
          */
-        let newResult = await hook.applyFilters(`${appPrefix}_${assessmentsPrefix}_get_result`, {total: countResult, data: result}); //prettier-ignore
+        let newResult = await hook.applyFilters(`${appPrefix}_${assessmentsPrefix}_get_result`, {total: countResult, data: result}, newQuery); //prettier-ignore
 
         resolve(newResult);
       } catch (error) {

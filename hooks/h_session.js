@@ -14,7 +14,7 @@ module.exports = (params) => {
    * ==========================
    */
   hook.addFilter(`${appPrefix}_${sessionPrefix}_query`, appPrefix, _getSessionFilterQuery, 10); // prettier-ignore
-  hook.addFilter(`${appPrefix}_${sessionPrefix}_get_result`, appPrefix, _modifySessionGetResult, 10); // prettier-ignore
+  hook.addFilter(`${appPrefix}_${sessionPrefix}_get_result`, appPrefix, _modifySessionGetResult, 10, 2); // prettier-ignore
 
   /**
    * modify query get session
@@ -66,9 +66,10 @@ module.exports = (params) => {
    *
    * @param {*} result
    */
-  async function _modifySessionGetResult(result) {
+  async function _modifySessionGetResult(result, query) {
     try {
       if (_.isEmpty(result?.data)) return result;
+      if (!_.isNil(query?.raw) && query?.raw) return result;
       let newResult = [];
       for (let index = 0; index < result?.data.length; index++) {
         const item = result?.data[index];

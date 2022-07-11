@@ -103,6 +103,7 @@ module.exports = (params) => {
   async function _modifyMasterGetResult(result, query) {
     try {
       if (_.isEmpty(result?.data)) return result;
+      if (!_.isNil(query?.raw) && query?.raw) return result;
       let newResult = [];
       for (let index = 0; index < result?.data.length; index++) {
         const item = result?.data[index];

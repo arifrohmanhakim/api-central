@@ -18,7 +18,7 @@ module.exports = (params) => {
    */
   hook.addFilter(`${appPrefix}_validate_get_${lecturersPrefix}`, appPrefix, _validateGetLecturers, 10, 2); // prettier-ignore
   hook.addFilter(`${appPrefix}_${lecturersPrefix}_query`, appPrefix, _getLecturersFilterQuery, 10); // prettier-ignore
-  hook.addFilter(`${appPrefix}_${lecturersPrefix}_result`, appPrefix, _modifyLecturersGetResult, 10); // prettier-ignore
+  hook.addFilter(`${appPrefix}_${lecturersPrefix}_get_result`, appPrefix, _modifyLecturersGetResult, 10, 2); // prettier-ignore
 
   /**
    * Validasi data
@@ -80,10 +80,10 @@ module.exports = (params) => {
    *
    * @param {*} result
    */
-  async function _modifyLecturersGetResult(result) {
+  async function _modifyLecturersGetResult(result, query) {
     try {
       if (_.isEmpty(result.data)) return result;
-
+      if (!_.isNil(query?.raw) && query?.raw) return result;
       let newResult = [];
       for (let index = 0; index < result.data.length; index++) {
         const item = result.data[index];

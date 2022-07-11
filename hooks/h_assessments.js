@@ -14,7 +14,7 @@ module.exports = (params) => {
    * ==========================
    */
   hook.addFilter(`${appPrefix}_${assessmentsPrefix}_query`, appPrefix, _getAssessmentsFilterQuery, 10); // prettier-ignore
-  hook.addFilter(`${appPrefix}_${assessmentsPrefix}_get_result`, appPrefix, _modifyAssessmentsGetResult, 10); // prettier-ignore
+  hook.addFilter(`${appPrefix}_${assessmentsPrefix}_get_result`, appPrefix, _modifyAssessmentsGetResult, 10, 2); // prettier-ignore
 
   /**
    * modify query get assessments
@@ -46,9 +46,10 @@ module.exports = (params) => {
    *
    * @param {*} result
    */
-  async function _modifyAssessmentsGetResult(result) {
+  async function _modifyAssessmentsGetResult(result, query) {
     try {
       if (_.isEmpty(result?.data)) return result;
+      if (!_.isNil(query?.raw) && query?.raw) return result;
       let newResult = [];
       for (let index = 0; index < result?.data.length; index++) {
         const item = result?.data[index];

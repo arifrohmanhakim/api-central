@@ -323,7 +323,7 @@ module.exports = (params) => {
    */
   hook.addFilter(`${appPrefix}_validate_get_${rpsPrefix}`, appPrefix, _validateBeforeGetRps, 10, 2); // prettier-ignore
   hook.addFilter(`${appPrefix}_${rpsPrefix}_query`, appPrefix, _getRpsFilterQuery, 10); // prettier-ignore
-  hook.addFilter(`${appPrefix}_${rpsPrefix}_result`, appPrefix, _modifyRpsResult, 10, 2); // prettier-ignore
+  hook.addFilter(`${appPrefix}_${rpsPrefix}_get_result`, appPrefix, _modifyRpsResult, 10, 2); // prettier-ignore
 
   /**
    * Validasi body data

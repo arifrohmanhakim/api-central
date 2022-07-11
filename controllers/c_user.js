@@ -84,7 +84,7 @@ class ControllerUser {
         /**
          * add hook apply filters to modify the result
          */
-        let newResult = await hook.applyFilters(`${appPrefix}_${userPrefix}_result`, result, query); //prettier-ignore
+        let newResult = await hook.applyFilters(`${appPrefix}_${userPrefix}_get_result`, result, query); //prettier-ignore
 
         resolve(newResult);
       } catch (error) {
