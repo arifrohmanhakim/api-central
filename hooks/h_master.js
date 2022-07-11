@@ -80,13 +80,10 @@ module.exports = (params) => {
         } else {
           params = {
             ...params,
-            category: item.master_category,
-            name: item.master_title,
+            title: item.master_title,
+            content: item.master_content,
             author: item.master_author,
-            publisher: item.master_publisher,
-            year: item.master_year,
-            description: item.master_description,
-            category: item.master_category,
+            type: item.master_type,
             status: item.master_status,
           };
         }
