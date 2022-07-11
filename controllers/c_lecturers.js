@@ -14,7 +14,28 @@ class ControllerLecturers {
   _getLecturersById(lecturerId) {
     return new Promise(async (resolve, reject) => {
       try {
-        resolve(this._getLecturers({ l_id: lecturerId }));
+        /**
+         * add hook validate get detail refs
+         */
+        let _validate = await hook.applyFilters(`${appPrefix}_validate_get_detail_${lecturersPrefix}`, "", lecturerId); //prettier-ignore
+        if (!_.eq(_validate, "")) return resolve(_validate);
+
+        /**
+         * add hook before get detail refs
+         */
+        hook.doAction(`${appPrefix}_before_get_detail_${lecturersPrefix}`, lecturerId, resolve); //prettier-ignore
+
+        /**
+         * get mongodb data by id
+         */
+        const result = await m_lecturers.findById(lecturerId);
+
+        /**
+         * add hook apply filters to modify the result
+         */
+        let newResult = await hook.applyFilters(`${appPrefix}_${lecturersPrefix}_detail_result`, result); //prettier-ignore
+
+        resolve(newResult);
         return;
       } catch (error) {
         console.log("err:_getLecturersById", error);
