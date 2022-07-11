@@ -72,6 +72,7 @@ module.exports = (params) => {
         course_validated_at: result?.rps_validated_at,
         course_creator: result?.rps_creator,
         course_validator: result?.rps_validator,
+        course_status: result?.rps_status,
       };
 
       return newResult;
@@ -587,6 +588,59 @@ module.exports = (params) => {
       };
     } catch (error) {
       console.log("err:_modifyRpsGetResult", error);
+      return result;
+    }
+  }
+
+  /**
+   * ==========================
+   * Delete Rps
+   *
+   * _validateBeforeDeleteRps
+   * _modifyRpsDeleteResult
+   * ==========================
+   */
+  hook.addFilter(`${appPrefix}_validate_delete_${rpsPrefix}`, appPrefix, _validateBeforeDeleteRps, 10, 2); // prettier-ignore
+  hook.addFilter(`${appPrefix}_${rpsPrefix}_delete_result`, appPrefix, _modifyRpsDeleteResult, 10); // prettier-ignore
+
+  /**
+   * Validasi body data
+   *
+   * @param {*} resolve
+   * @param {*} query
+   * @returns
+   */
+  async function _validateBeforeDeleteRps(res, query) {
+    try {
+      const { rps_id } = query;
+      // check is rps_id not empty
+      if (_.isNil(rps_id) || _.eq(rps_id, "")) return `rps_id required`;
+
+      // validate type is ObjectId
+      if (!isValidObjectId(rps_id)) return "rps_id not valid";
+
+      return res;
+    } catch (error) {
+      console.log("err: _validateBeforeDeleteRps", error);
+      return error.message;
+    }
+  }
+
+  /**
+   * modify / format ulang data yang muncul di user
+   *
+   * @param {*} result
+   */
+  async function _modifyRpsDeleteResult(result) {
+    try {
+      return {
+        status: "success",
+        message: "berhasil menghapus data rps",
+        datetime: moment().unix(),
+        id: result._id,
+      };
+    } catch (error) {
+      console.log("err:_modifyRpsDeleteResult", error);
       return result;
     }
   }

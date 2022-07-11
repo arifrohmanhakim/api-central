@@ -85,5 +85,12 @@ module.exports = (params) => {
         ...req.body,
       });
       res.json(_putRps);
+    })
+    .delete(async (req, res) => {
+      let _deleteRps = await c_rps._deleteRps({
+        rps_id: req.params.rpsId,
+        ...req.query,
+      });
+      res.json(_deleteRps);
     });
 };

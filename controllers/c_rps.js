@@ -271,7 +271,7 @@ class ControllerRps {
   _deleteRps(query) {
     return new Promise(async (resolve, reject) => {
       try {
-        let results = "";
+        let result = "";
 
         /**
          * add hook validate delete rps
@@ -291,9 +291,9 @@ class ControllerRps {
          * else only change rps status to deleted
          */
         if (!_.isNil(query.force) && _.eq(query.force, "true")) {
-          results = await m_rps.deleteOne({ _id: query.rps_id });
+          result = await m_rps.deleteOne({ _id: query.rps_id });
         } else {
-          results = await m_rps.findOneAndUpdate(
+          result = await m_rps.findOneAndUpdate(
             { _id: query.rps_id },
             { rps_status: "deleted" }
           );
@@ -303,16 +303,16 @@ class ControllerRps {
          * add hook after delete rps
          *
          */
-        await hook.doAction(`${appPrefix}_after_delete_${rpsPrefix}`, results, query); //prettier-ignore
+        await hook.doAction(`${appPrefix}_after_delete_${rpsPrefix}`, result, query); //prettier-ignore
 
         /**
          * add hook apply filters to modify the result
          */
-        let newResult = await hook.applyFilters(`${appPrefix}_${rpsPrefix}_delete_result`, result, querys); //prettier-ignore
+        let newResult = await hook.applyFilters(`${appPrefix}_${rpsPrefix}_delete_result`, result, query); //prettier-ignore
 
         resolve(newResult);
       } catch (error) {
-        _e("err:_deleteRps", error);
+        console.log("err:_deleteRps", error);
         resolve(error);
       }
     });
