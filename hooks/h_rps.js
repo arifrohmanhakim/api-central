@@ -5,6 +5,7 @@ const ControllerCpmk = require("../controllers/c_cpmk");
 const ControllerAssessments = require("../controllers/c_assessments");
 const ControllerUser = require("../controllers/c_user");
 const ControllerMaster = require("../controllers/c_master");
+const ControllerSession = require("../controllers/c_session");
 
 const { isValidObjectId } = require("../utils/u_helpers");
 
@@ -16,6 +17,7 @@ module.exports = (params) => {
   const c_user = new ControllerUser(params);
   const c_cpmk = new ControllerCpmk(params);
   const c_master = new ControllerMaster(params);
+  const c_session = new ControllerSession(params);
 
   /**
    * ==========================
@@ -30,6 +32,7 @@ module.exports = (params) => {
   hook.addFilter(`${appPrefix}_${rpsPrefix}_detail_result`, appPrefix, _modifyRpsDetailResultCourseCPMK, 30); // prettier-ignore
   hook.addFilter(`${appPrefix}_${rpsPrefix}_detail_result`, appPrefix, _modifyRpsDetailResultCourseReferences, 40); // prettier-ignore
   hook.addFilter(`${appPrefix}_${rpsPrefix}_detail_result`, appPrefix, _modifyRpsDetailResultCourseAssessment, 50); // prettier-ignore
+  hook.addFilter(`${appPrefix}_${rpsPrefix}_detail_result`, appPrefix, _modifyRpsDetailResultCoursePlans, 60); // prettier-ignore
 
   /**
    * validate resId
@@ -233,13 +236,79 @@ module.exports = (params) => {
         rps_id: newResult?.course_id.toString(),
         status: "active",
       });
-      console.log("assessmentsCreator", assessmentsCreator);
       if (!_.isEmpty(assessmentsCreator.assessments)) {
         newResult.course_assessments = assessmentsCreator.assessments;
       }
       return newResult;
     } catch (error) {
       console.log("err:_modifyRpsDetailResultCourseAssessments", error);
+      return result;
+    }
+  }
+
+  /**
+   * add course plans
+   *
+   * @param {*} result
+   */
+  async function _modifyRpsDetailResultCoursePlans(result) {
+    try {
+      let newResult = await result;
+      if (_.isNil(newResult) || _.isEmpty(newResult)) return newResult;
+
+      // get course session
+      const sessions = await c_session._getSession({
+        rps_id: newResult?.course_id.toString(),
+        status: "active",
+      });
+      newResult.course_plans = [];
+      if (!_.isEmpty(sessions.weekly)) {
+        for (let index = 0; index < sessions.weekly.length; index++) {
+          const plan = sessions.weekly[index];
+          let planResult = {
+            id: plan.id,
+            week: plan.week_no,
+            material: plan.material,
+            method: plan.method,
+            student_exp: plan.student_exp,
+            references: [],
+            assessments: [],
+          };
+
+          // references
+          for (let indexRefs = 0; indexRefs < plan.refs.length; indexRefs++) {
+            const refs = plan.refs[indexRefs];
+            const refsResult = await c_refs._getRefsById(refs);
+            planResult.references.push({
+              ref_id: refsResult._id,
+              ref_name: refsResult.refs_title,
+              ref_desc: refsResult.refs_description,
+            });
+          }
+
+          // assessments
+          for (
+            let indexAssessments = 0;
+            indexAssessments < plan.refs.length;
+            indexAssessments++
+          ) {
+            const assessments = plan.assessments[indexAssessments];
+            const assessmentsResult = await c_assessments._getAssessmentsById(
+              assessments
+            );
+            planResult.assessments.push({
+              id: assessmentsResult._id,
+              name: assessmentsResult.assessments_name,
+              percentage: assessmentsResult.assessments_percentage,
+            });
+          }
+
+          newResult.course_plans.push(planResult);
+        }
+      }
+      return newResult;
+    } catch (error) {
+      console.log("err:_modifyRpsDetailResultCoursePlanss", error);
       return result;
     }
   }

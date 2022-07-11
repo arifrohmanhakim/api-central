@@ -5,6 +5,46 @@ class ControllerAssessments {
   }
 
   /**
+   * Get assessments By assessments Id
+   *
+   * @param   {[type]}  assessmentsId  [assessmentsId description]
+   *
+   * @return  {[type]}           [return description]
+   */
+  _getAssessmentsById(assessmentsId) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        /**
+         * add hook validate get detail assessments
+         */
+        let _validate = await hook.applyFilters(`${appPrefix}_validate_get_detail_${assessmentsPrefix}`, "", assessmentsId); //prettier-ignore
+        if (!_.eq(_validate, "")) return resolve(_validate);
+
+        /**
+         * add hook before get detail assessments
+         */
+        hook.doAction(`${appPrefix}_before_get_detail_${assessmentsPrefix}`, assessmentsId, resolve); //prettier-ignore
+
+        /**
+         * get mongodb data by id
+         */
+        const result = await m_assessments.findById(assessmentsId);
+
+        /**
+         * add hook apply filters to modify the result
+         */
+        let newResult = await hook.applyFilters(`${appPrefix}_${assessmentsPrefix}_detail_result`, result); //prettier-ignore
+
+        resolve(newResult);
+        return;
+      } catch (error) {
+        console.log("err:_getAssessmentsById", error);
+        reject(error.message);
+      }
+    });
+  }
+
+  /**
    * get all assessments by filter
    *
    * @param   {[type]}  query  [query description]

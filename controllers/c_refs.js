@@ -5,6 +5,46 @@ class ControllerRefs {
   }
 
   /**
+   * Get refs By refs Id
+   *
+   * @param   {[type]}  refsId  [refsId description]
+   *
+   * @return  {[type]}           [return description]
+   */
+  _getRefsById(refsId) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        /**
+         * add hook validate get detail refs
+         */
+        let _validate = await hook.applyFilters(`${appPrefix}_validate_get_detail_${refsPrefix}`, "", refsId); //prettier-ignore
+        if (!_.eq(_validate, "")) return resolve(_validate);
+
+        /**
+         * add hook before get detail refs
+         */
+        hook.doAction(`${appPrefix}_before_get_detail_${refsPrefix}`, refsId, resolve); //prettier-ignore
+
+        /**
+         * get mongodb data by id
+         */
+        const result = await m_refs.findById(refsId);
+
+        /**
+         * add hook apply filters to modify the result
+         */
+        let newResult = await hook.applyFilters(`${appPrefix}_${refsPrefix}_detail_result`, result); //prettier-ignore
+
+        resolve(newResult);
+        return;
+      } catch (error) {
+        console.log("err:_getRefsById", error);
+        reject(error.message);
+      }
+    });
+  }
+
+  /**
    * get all refs by filter
    *
    * @param   {[type]}  query  [query description]
