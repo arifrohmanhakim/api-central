@@ -60,7 +60,10 @@ module.exports = (params) => {
       res.json(_getRps);
     })
     .post(async (req, res) => {
-      let _postRps = await c_rps._postRps(req.body);
+      let _postRps = await c_rps._postRps({
+        ...req.body,
+        creator: req.user._id,
+      });
       res.json(_postRps);
     });
 

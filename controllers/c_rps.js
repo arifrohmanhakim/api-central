@@ -124,6 +124,8 @@ class ControllerRps {
         const {
           code,
           name,
+          materi,
+          desc,
           credit,
           semester,
           rev,
@@ -152,6 +154,8 @@ class ControllerRps {
         let newparams = await hook.applyFilters(`${appPrefix}_${rpsPrefix}_post_params`, {
           rps_code: code || "",
           rps_name: name || "",
+          rps_materi: materi || "",
+          rps_desc: desc || "",
           rps_credit: credit || 0,
           rps_semester: semester || 0,
           rps_rev: rev || 0,

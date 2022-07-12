@@ -195,6 +195,7 @@ module.exports = (params) => {
               id: itemLo._id,
               code: itemLo.cpmk_code,
               lo_name: itemLo.cpmk_name,
+              lo_cp: itemLo.cpmk_clo_ids,
             },
           ];
           curriculum_lo = [...curriculum_lo, ...itemLo.cpmk_clo_ids];
@@ -213,6 +214,22 @@ module.exports = (params) => {
             code: getMasterCurriculum.code,
             lo_name: getMasterCurriculum.master_title,
           });
+        }
+      }
+
+      // modify cpmk ids data
+      if (!_.isEmpty(result.course_lo) && !_.isEmpty(result.curriculum_lo)) {
+        for (let index = 0; index < result.course_lo.length; index++) {
+          const cLo = result.course_lo[index];
+          for (let index2 = 0; index2 < cLo.lo_cp.length; index2++) {
+            const cp_id = cLo.lo_cp[index2];
+            const findCp = _.findIndex(result.curriculum_lo, (item) =>
+              _.eq(item.id.toString(), cp_id)
+            );
+            if (_.eq(findCp, -1)) continue;
+            result.course_lo[index].lo_cp[index2] =
+              result.curriculum_lo[findCp];
+          }
         }
       }
 
@@ -531,13 +548,15 @@ module.exports = (params) => {
    * @returns
    */
   async function _validateBeforePostRps(res, query) {
-    const { code, name, credit, semester, rev, creator, validator } = query;
+    const { code, name, materi, desc, credit, semester, creator, validator } =
+      query;
 
     if (_.isNil(code) || _.eq(code, "")) return `code required`;
     if (_.isNil(name) || _.eq(name, "")) return `name required`;
     if (_.isNil(credit) || _.eq(credit, "")) return `credit required`;
     if (_.isNil(semester) || _.eq(semester, "")) return `semester required`;
-    if (_.isNil(rev) || _.eq(rev, "")) return `rev required`;
+    if (_.isNil(materi) || _.eq(materi, "")) return `materi required`;
+    if (_.isNil(desc) || _.eq(desc, "")) return `desc required`;
     if (_.isNil(creator) || _.eq(creator, "")) return `creator required`;
 
     if (!isValidObjectId(creator)) return "creator not valid";
