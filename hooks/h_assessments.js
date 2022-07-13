@@ -176,7 +176,7 @@ module.exports = (params) => {
 
       return res;
     } catch (error) {
-      _e("err: _validateBeforeDeleteAssessments", error);
+      console.log("err: _validateBeforeDeleteAssessments", error);
       return error.message;
     }
   }

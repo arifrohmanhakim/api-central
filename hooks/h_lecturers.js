@@ -240,7 +240,7 @@ module.exports = (params) => {
 
       return res;
     } catch (error) {
-      _e("err: _validateBeforeDeleteLecturers", error);
+      console.log("err: _validateBeforeDeleteLecturers", error);
       return error.message;
     }
   }

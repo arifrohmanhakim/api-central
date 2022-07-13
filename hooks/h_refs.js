@@ -236,7 +236,7 @@ module.exports = (params) => {
 
       return res;
     } catch (error) {
-      _e("err: _validateBeforeDeleteRefs", error);
+      console.log("err: _validateBeforeDeleteRefs", error);
       return error.message;
     }
   }

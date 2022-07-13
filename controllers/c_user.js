@@ -248,7 +248,7 @@ class ControllerUser {
 
         resolve(user_meta);
       } catch (error) {
-        _e("err:_postUserMeta", error);
+        console.log("err:_postUserMeta", error);
         resolve(new Error(_.toString(error)));
       }
     });

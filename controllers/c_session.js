@@ -276,7 +276,7 @@ class ControllerSession {
 
         resolve(newResult);
       } catch (error) {
-        _e("err:_deleteSession", error);
+        console.log("err:_deleteSession", error);
         resolve(error);
       }
     });

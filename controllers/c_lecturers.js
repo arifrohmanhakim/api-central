@@ -284,7 +284,7 @@ class ControllerLecturers {
 
         resolve(newResult);
       } catch (error) {
-        _e("err:_deleteLecturers", error);
+        console.log("err:_deleteLecturers", error);
         resolve(error);
       }
     });

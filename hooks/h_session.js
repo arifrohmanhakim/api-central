@@ -218,7 +218,7 @@ module.exports = (params) => {
 
       return res;
     } catch (error) {
-      _e("err: _validateBeforeDeleteSession", error);
+      console.log("err: _validateBeforeDeleteSession", error);
       return error.message;
     }
   }

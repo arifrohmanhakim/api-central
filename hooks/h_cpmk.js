@@ -198,7 +198,7 @@ module.exports = (params) => {
 
       return res;
     } catch (error) {
-      _e("err: _validateBeforeDeleteCpmk", error);
+      console.log("err: _validateBeforeDeleteCpmk", error);
       return error.message;
     }
   }
