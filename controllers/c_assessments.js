@@ -271,7 +271,7 @@ class ControllerAssessments {
 
         resolve(newResult);
       } catch (error) {
-        _e("err:_deleteAssessments", error);
+        console.log("err:_deleteAssessments", error);
         resolve(error);
       }
     });
