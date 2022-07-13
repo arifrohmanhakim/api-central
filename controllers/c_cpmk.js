@@ -82,10 +82,13 @@ class ControllerCpmk {
       try {
         const { rps_id, code, name, clo_ids, status } = query;
 
+        console.log("query", query);
+
         /**
          * add hook validate post cpmk
          */
         let _validate = await hook.applyFilters(`${appPrefix}_validate_post_${cpmkPrefix}`, "", query); // prettier-ignore
+        console.log("_validate", _validate);
         if (!_.eq(_validate, "")) return resolve(_validate);
 
         /**
@@ -104,6 +107,8 @@ class ControllerCpmk {
           cpmk_clo_ids: clo_ids || [],
           cpmk_status: status || "active",
         });
+
+        console.log("result", result);
 
         /**
          * add hook after post cpmk
@@ -196,7 +201,7 @@ class ControllerCpmk {
   _deleteCpmk(query) {
     return new Promise(async (resolve, reject) => {
       try {
-        let results = "";
+        let result = "";
 
         /**
          * add hook validate delete cpmk
@@ -216,9 +221,9 @@ class ControllerCpmk {
          * else only change cpmk status to deleted
          */
         if (!_.isNil(query.force) && _.eq(query.force, "true")) {
-          results = await m_cpmk.deleteOne({ _id: query.cpmk_id });
+          result = await m_cpmk.deleteOne({ _id: query.cpmk_id });
         } else {
-          results = await m_cpmk.findOneAndUpdate(
+          result = await m_cpmk.findOneAndUpdate(
             { _id: query.cpmk_id },
             { cpmk_status: "deleted" }
           );
@@ -228,16 +233,16 @@ class ControllerCpmk {
          * add hook after delete cpmk
          *
          */
-        await hook.doAction(`${appPrefix}_after_delete_${cpmkPrefix}`, results, query); //prettier-ignore
+        await hook.doAction(`${appPrefix}_after_delete_${cpmkPrefix}`, result, query); //prettier-ignore
 
         /**
          * add hook apply filters to modify the result
          */
-        let newResult = await hook.applyFilters(`${appPrefix}_${cpmkPrefix}_delete_result`, result, querys); //prettier-ignore
+        let newResult = await hook.applyFilters(`${appPrefix}_${cpmkPrefix}_delete_result`, result, query); //prettier-ignore
 
         resolve(newResult);
       } catch (error) {
-        _e("err:_deleteCpmk", error);
+        console.log("err:_deleteCpmk", error);
         resolve(error);
       }
     });

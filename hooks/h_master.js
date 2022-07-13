@@ -24,9 +24,8 @@ module.exports = (params) => {
 
       // get master meta
       const masterMeta = await c_master._getMasterMeta({
-        master_id: result._id,
+        m_id: result._id,
       });
-
       if (!_.isNil(masterMeta) && !_.isEmpty(masterMeta)) {
         for (let index = 0; index < masterMeta.length; index++) {
           const meta = masterMeta[index];

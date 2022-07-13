@@ -21,11 +21,16 @@ module.exports = (params) => {
       res.json(_getCpmk);
     })
     .post(async (req, res) => {
-      let _postCpmk = await c_cpmk._postCpmk({
-        ...req.body,
-        rps_id: req.params.rpsId,
-      });
-      res.json(_postCpmk);
+      try {
+        let _postCpmk = await c_cpmk._postCpmk({
+          ...req.body,
+          rps_id: req.params.rpsId,
+        });
+        res.json(_postCpmk);
+      } catch (error) {
+        console.log("err: post", error);
+        res.json(error);
+      }
     });
 
   /**

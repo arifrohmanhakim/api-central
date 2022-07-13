@@ -80,7 +80,7 @@ module.exports = (params) => {
    * _validateBeforePostCpmk
    * ==========================
    */
-  hook.addFilter( `${appPrefix}_validate_post_${cpmkPrefix}`, appPrefix, _validateBeforePostCpmk, 10, 2 ) // prettier-ignore
+  // hook.addFilter( `${appPrefix}_validate_post_${cpmkPrefix}`, appPrefix, _validateBeforePostCpmk, 10, 2 ) // prettier-ignore
   hook.addFilter(`${appPrefix}_${cpmkPrefix}_post_result`, appPrefix, _modifyCpmkPostResult, 10); // prettier-ignore
 
   /**
@@ -94,16 +94,24 @@ module.exports = (params) => {
     try {
       const { rps_id, code, name, clo_ids } = query;
 
+      console.log("vald", query);
+
       if (_.isNil(rps_id) || _.eq(rps_id, "")) return `rps_id required`;
+      console.log("1");
       if (_.isNil(code) || _.eq(code, "")) return `code required`;
+      console.log("2");
       if (_.isNil(name) || _.eq(name, "")) return `name required`;
+      console.log("3");
       if (_.isNil(clo_ids) || _.isEmpty(clo_ids)) return `clo_ids required`;
+
+      console.log("aman");
 
       // validate type is ObjectId
       if (!isValidObjectId(rps_id)) return "rps_id not valid";
 
       // validate is rps exist
       const isRpsExist = await c_rps._getRpsById(rps_id);
+      console.log("isRpsExist", isRpsExist);
       if (_.isNil(isRpsExist)) return "RPS tidak ditemukan";
 
       return res;
