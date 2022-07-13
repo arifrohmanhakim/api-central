@@ -23,6 +23,12 @@ module.exports = (params) => {
    */
   async function _getCpmkFilterQuery(query) {
     try {
+      // filter by rps id
+      if (!_.isNil(query?.rps_id)) {
+        query.cpmk_rps_id = query?.rps_id;
+        delete query.rps_id;
+      }
+
       // filter by code
       if (!_.isNil(query?.code)) {
         query.cpmk_code = query?.code;
@@ -94,24 +100,16 @@ module.exports = (params) => {
     try {
       const { rps_id, code, name, clo_ids } = query;
 
-      console.log("vald", query);
-
       if (_.isNil(rps_id) || _.eq(rps_id, "")) return `rps_id required`;
-      console.log("1");
       if (_.isNil(code) || _.eq(code, "")) return `code required`;
-      console.log("2");
       if (_.isNil(name) || _.eq(name, "")) return `name required`;
-      console.log("3");
       if (_.isNil(clo_ids) || _.isEmpty(clo_ids)) return `clo_ids required`;
-
-      console.log("aman");
 
       // validate type is ObjectId
       if (!isValidObjectId(rps_id)) return "rps_id not valid";
 
       // validate is rps exist
       const isRpsExist = await c_rps._getRpsById(rps_id);
-      console.log("isRpsExist", isRpsExist);
       if (_.isNil(isRpsExist)) return "RPS tidak ditemukan";
 
       return res;

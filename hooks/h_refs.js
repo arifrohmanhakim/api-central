@@ -23,6 +23,12 @@ module.exports = (params) => {
    */
   async function _getRefsFilterQuery(query) {
     try {
+      // filter by rps id
+      if (!_.isNil(query?.rps_id)) {
+        query.refs_rps_id = query?.rps_id;
+        delete query.rps_id;
+      }
+
       // filter by status
       if (!_.isNil(query?.status)) {
         query.refs_status = query?.status;

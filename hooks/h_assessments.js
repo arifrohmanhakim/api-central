@@ -23,6 +23,11 @@ module.exports = (params) => {
    */
   async function _getAssessmentsFilterQuery(query) {
     try {
+      // filter by rps id
+      if (!_.isNil(query?.rps_id)) {
+        query.assessments_rps_id = query?.rps_id;
+        delete query.rps_id;
+      }
       // filter by status
       if (!_.isNil(query?.status)) {
         query.assessments_status = query?.status;
