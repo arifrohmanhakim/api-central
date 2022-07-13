@@ -31,8 +31,6 @@ class ControllerUser {
          */
         const result = await m_user.findById(userId);
 
-        console.log("user resut", result);
-
         resolve(result);
       } catch (error) {
         console.log("err:_getUserById", error);

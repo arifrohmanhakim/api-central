@@ -183,7 +183,6 @@ module.exports = (params) => {
         status: "active",
         raw: true,
       });
-      // console.log("courseLo", courseLo);
       let curriculum_lo = [];
       result.curriculum_lo = [];
       if (!_.isEmpty(courseLo.data)) {

@@ -83,7 +83,6 @@ module.exports = (params) => {
             const select = splitSelect[index];
             params[select] = item[`refs_${select}`];
           }
-          console.log("params", splitSelect, params);
         } else {
           params = {
             ...params,

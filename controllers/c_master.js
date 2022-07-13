@@ -35,7 +35,6 @@ class ControllerMaster {
          * add hook apply filters to modify the result
          */
         let newResult = await hook.applyFilters(`${appPrefix}_${masterPrefix}_detail_result`, result); //prettier-ignore
-        console.log("newResult", newResult);
         resolve(newResult);
         return;
       } catch (error) {

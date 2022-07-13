@@ -82,13 +82,10 @@ class ControllerCpmk {
       try {
         const { rps_id, code, name, clo_ids, status } = query;
 
-        console.log("query", query);
-
         /**
          * add hook validate post cpmk
          */
         let _validate = await hook.applyFilters(`${appPrefix}_validate_post_${cpmkPrefix}`, "", query); // prettier-ignore
-        console.log("_validate", _validate);
         if (!_.eq(_validate, "")) return resolve(_validate);
 
         /**
@@ -107,8 +104,6 @@ class ControllerCpmk {
           cpmk_clo_ids: clo_ids || [],
           cpmk_status: status || "active",
         });
-
-        console.log("result", result);
 
         /**
          * add hook after post cpmk
