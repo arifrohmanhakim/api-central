@@ -117,7 +117,7 @@ class ControllerMaster {
   _getMasterMeta(query) {
     return new Promise(async (resolve, reject) => {
       try {
-        if (_.isNil(query?.master_id)) return "master_id required";
+        if (_.isNil(query?.m_id)) return "master_id required";
         /**
          * get mongodb data by query
          */

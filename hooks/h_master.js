@@ -127,10 +127,9 @@ module.exports = (params) => {
             status: item.master_status,
           };
         }
-
         // get master meta
         const masterMeta = await c_master._getMasterMeta({
-          master_id: item._id,
+          m_id: item._id,
         });
 
         if (!_.isNil(masterMeta) && !_.isEmpty(masterMeta)) {
