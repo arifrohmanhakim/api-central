@@ -255,7 +255,7 @@ class ControllerRefs {
   _deleteRefs(query) {
     return new Promise(async (resolve, reject) => {
       try {
-        let results = "";
+        let result = "";
 
         /**
          * add hook validate delete refs
@@ -275,9 +275,9 @@ class ControllerRefs {
          * else only change refs status to deleted
          */
         if (!_.isNil(query.force) && _.eq(query.force, "true")) {
-          results = await m_refs.deleteOne({ _id: query.refs_id });
+          result = await m_refs.deleteOne({ _id: query.refs_id });
         } else {
-          results = await m_refs.findOneAndUpdate(
+          result = await m_refs.findOneAndUpdate(
             { _id: query.refs_id },
             { refs_status: "deleted" }
           );
@@ -287,16 +287,16 @@ class ControllerRefs {
          * add hook after delete refs
          *
          */
-        await hook.doAction(`${appPrefix}_after_delete_${refsPrefix}`, results, query); //prettier-ignore
+        await hook.doAction(`${appPrefix}_after_delete_${refsPrefix}`, result, query); //prettier-ignore
 
         /**
          * add hook apply filters to modify the result
          */
-        let newResult = await hook.applyFilters(`${appPrefix}_${refsPrefix}_delete_result`, result, querys); //prettier-ignore
+        let newResult = await hook.applyFilters(`${appPrefix}_${refsPrefix}_delete_result`, result, query); //prettier-ignore
 
         resolve(newResult);
       } catch (error) {
-        _e("err:_deleteRefs", error);
+        console.log("err:_deleteRefs", error);
         resolve(error);
       }
     });
