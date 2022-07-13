@@ -5,6 +5,46 @@ class ControllerCpmk {
   }
 
   /**
+   * Get cpmk By cpmk Id
+   *
+   * @param   {[type]}  cpmkId  [cpmkId description]
+   *
+   * @return  {[type]}           [return description]
+   */
+  _getCpmkById(cpmkId) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        /**
+         * add hook validate get detail cpmk
+         */
+        let _validate = await hook.applyFilters(`${appPrefix}_validate_get_detail_${cpmkPrefix}`, "", cpmkId); //prettier-ignore
+        if (!_.eq(_validate, "")) return resolve(_validate);
+
+        /**
+         * add hook before get detail cpmk
+         */
+        hook.doAction(`${appPrefix}_before_get_detail_${cpmkPrefix}`, cpmkId, resolve); //prettier-ignore
+
+        /**
+         * get mongodb data by id
+         */
+        const result = await m_cpmk.findById(cpmkId);
+
+        /**
+         * add hook apply filters to modify the result
+         */
+        let newResult = await hook.applyFilters(`${appPrefix}_${cpmkPrefix}_detail_result`, result); //prettier-ignore
+
+        resolve(newResult);
+        return;
+      } catch (error) {
+        console.log("err:_getCpmkById", error);
+        reject(error.message);
+      }
+    });
+  }
+
+  /**
    * get all cpmk by filter
    *
    * @param   {[type]}  query  [query description]

@@ -43,6 +43,14 @@ module.exports = (params) => {
    */
   app
     .route(`/bo/rps/:rpsId/cpmk/:cpmkId`)
+    .get(async (req, res) => {
+      if (_.isNil(req.params.cpmkId)) {
+        res.json("cpmkId required");
+        return;
+      }
+      let _getCpmkById = await c_cpmk._getCpmkById(req.params.cpmkId);
+      res.json(_getCpmkById);
+    })
     .put(async (req, res) => {
       let _putCpmk = await c_cpmk._putCpmk({
         ...req.body,
