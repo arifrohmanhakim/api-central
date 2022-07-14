@@ -193,7 +193,6 @@ class ControllerAssessments {
             ...(status && { assessments_status: status }),
           }
         );
-        console.log("okokok", result);
 
         /**
          * check if mongodb return null
