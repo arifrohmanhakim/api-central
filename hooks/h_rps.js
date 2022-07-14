@@ -74,6 +74,7 @@ module.exports = (params) => {
         course_validated_at: result?.rps_validated_at,
         course_creator: result?.rps_creator,
         course_validator: result?.rps_validator,
+        course_editable: result?.rps_editable,
       };
 
       return newResult;
