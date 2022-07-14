@@ -5,6 +5,46 @@ class ControllerSession {
   }
 
   /**
+   * Get refs By refs Id
+   *
+   * @param   {[type]}  sessionId  [sessionId description]
+   *
+   * @return  {[type]}           [return description]
+   */
+  _getSessionById(sessionId) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        /**
+         * add hook validate get detail session
+         */
+        let _validate = await hook.applyFilters(`${appPrefix}_validate_get_detail_${sessionPrefix}`, "", sessionId); //prettier-ignore
+        if (!_.eq(_validate, "")) return resolve(_validate);
+
+        /**
+         * add hook before get detail session
+         */
+        hook.doAction(`${appPrefix}_before_get_detail_${sessionPrefix}`, sessionId, resolve); //prettier-ignore
+
+        /**
+         * get mongodb data by id
+         */
+        const result = await m_session.findById(sessionId);
+
+        /**
+         * add hook apply filters to modify the result
+         */
+        let newResult = await hook.applyFilters(`${appPrefix}_${sessionPrefix}_detail_result`, result); //prettier-ignore
+
+        resolve(newResult);
+        return;
+      } catch (error) {
+        console.log("err:_getSessionById", error);
+        reject(error.message);
+      }
+    });
+  }
+
+  /**
    * get all session by filter
    *
    * @param   {[type]}  query  [query description]

@@ -38,6 +38,16 @@ module.exports = (params) => {
    */
   app
     .route(`/bo/rps/:rpsId/session/:sessionId`)
+    .get(async (req, res) => {
+      if (_.isNil(req.params.sessionId)) {
+        res.json("sessionId required");
+        return;
+      }
+      let _getSessionById = await c_session._getSessionById(
+        req.params.sessionId
+      );
+      res.json(_getSessionById);
+    })
     .put(async (req, res) => {
       let _putSession = await c_session._putSession({
         ...req.body,
