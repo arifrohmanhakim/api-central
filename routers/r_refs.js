@@ -38,6 +38,14 @@ module.exports = (params) => {
    */
   app
     .route(`/bo/rps/:rpsId/refs/:refsId`)
+    .get(async (req, res) => {
+      if (_.isNil(req.params.refsId)) {
+        res.json("refsId required");
+        return;
+      }
+      let _getRefsById = await c_refs._getRefsById(req.params.refsId);
+      res.json(_getRefsById);
+    })
     .put(async (req, res) => {
       let _putRefs = await c_refs._putRefs({
         ...req.body,
